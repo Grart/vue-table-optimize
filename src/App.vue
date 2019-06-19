@@ -79,7 +79,7 @@
   }
 
   .left {
-    width: 300px;
+    width: 140px;
   }
 
   .left ul {
@@ -89,13 +89,13 @@
 
   .left ul li {
     text-align: left;
-    padding: 8px;
+    padding: 2px;
     float: right;
   }
 
   .menu-link {
-    font-size: 14px;
-    padding: 4px 20px;
+    font-size: 12px;
+    padding: 4px 10px;
     text-decoration: none;
     color: #767676;
   }

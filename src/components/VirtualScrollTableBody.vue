@@ -2,19 +2,20 @@
   <section class='c-table-wrapper__body-wrapper c-table-body-wrapper__virtual'
            ref='virtualScrollBody'
            @scroll.passive='onVirtualScroll'
-           :style='{height: getBodyHeight}'>
+           :style='{height: getBodyHeight,width:getBodyWidth}'>
+
     <div :style='getBodyWrapperStyle'>
       <div class='c-table-body-container c-table-body-container__virtual'
            v-for='record in renderData'
            :key='record[recordKey]'
-           :style='getBodyContainerStyle(record)'
-      >
+           :style='getBodyContainerStyle(record)'>
         <ul class='c-table-body__record'
             :style='{height: getRecordHeight}'>
           <li class='c-table-body-column'
               v-for='(column, index) in columnsConfig'
               :key='index'
-              :columnKey='column.key' :title='record[column.key]'
+              :columnKey='column.key'
+              :title='record[column.key]'
               :style='getColumnStyle(column)'>
             <div class='c-table-body-column__container'>
               <span v-if='!column.render'>{{record[column.key]}}</span>
@@ -42,6 +43,16 @@
       recordKey: String,
       itemHeight: Number,
       viewportHeight: Number,
+      viewportWidth: Number,
+      virtualScrollData: {
+        type: Object,
+        default: {
+          scrollTop: 0,
+          scrollLeft: 0,
+          scrollbarWidth: 16,
+          offsetWidth: 0
+        }
+      }
     },
     watch: {
       data: {
@@ -69,12 +80,26 @@
       getRecordHeight: function () {
         return `${this.itemHeight}px`;
       },
-      getBodyHeight: function () {
+      getBodyHeight: function ()
+      {
         return `${this.viewportHeight}px`;
       },
-      getBodyWrapperStyle: function () {
+      getBodyWidth: function ()
+      {
+        return `${this.viewportWidth}px`;
+      },
+      getBodyWrapperStyle: function ()
+      {
+        //表体宽度
+        let _bodyWidht = 0;
+        for (let _c = 0; _c < this.columnsConfig.length; _c++)
+        {
+          let _col = this.columnsConfig[_c];
+          _bodyWidht += parseInt(_col.cWidth ? _col.cWidth.replace('px', '') : _col.width);
+        }
         return {
           height: `${this.data.length * this.itemHeight}px`,
+          width: `${_bodyWidht }px`,
           position: 'relative',
         };
       },
@@ -83,7 +108,7 @@
       getColumnStyle: function (column) {
         return {
           width: column.cWidth,
-          height: `${this.itemHeight}px`,
+          height: `${this.itemHeight}px`
         };
       },
       buildRenderData: function (minHeight, maxHeight) {
@@ -101,10 +126,11 @@
         }
         return renderData;
       },
-      getBodyContainerStyle: function (record) {
+      getBodyContainerStyle: function (record)
+      {
         return {
           transform: `translateY(${record.translateY})`,
-          height: `${this.itemHeight}px`,
+          height: `${this.itemHeight}px`
         };
       },
       buildNewItems: function (newData) {
@@ -139,22 +165,50 @@
           this.renderData.push(newItems[index]);
         }
       },
-      updateRenderData: function (newData) {
-        if (this.renderData.length === 0) {
+      updateRenderData: function (newData)
+      {
+        let newItems = [];
+        let replaceItemsIndex = [];
+        if (this.renderData.length === 0)
+        {
           this.renderData = newData;
-          return;
         }
-        const newItems = this.buildNewItems(newData);
-        const replaceItemsIndex = this.buildOutDateItems(newData);
-        this.refreshVirtualItems(newItems, replaceItemsIndex);
+        else
+        {
+          newItems = this.buildNewItems(newData);
+          replaceItemsIndex = this.buildOutDateItems(newData);
+          this.refreshVirtualItems(newItems, replaceItemsIndex);
+        }
+        this.$emit(
+          'on-refresh-virtual-items',
+          this.renderData
+        );
       },
       refreshRenderData: function () {
         const virtualScrollBody = this.$refs.virtualScrollBody;
         const scrollTop = virtualScrollBody ? virtualScrollBody.scrollTop : 0;
-        const [minItemHeight, maxItemHeight] = calDomItemsHeight(this.itemHeight, this.remainHeight, this.viewportHeight, this.renderItemsHeight, scrollTop);
-        this.updateRenderData(this.buildRenderData(minItemHeight, maxItemHeight));
+        const scrollLeft = virtualScrollBody ? virtualScrollBody.scrollLeft : 0;
+        const [minItemHeight, maxItemHeight] = calDomItemsHeight(
+            this.itemHeight,
+            this.remainHeight,
+            this.viewportHeight,
+            this.renderItemsHeight,
+            scrollTop
+          );
+        this.updateRenderData(
+          this.buildRenderData(minItemHeight, maxItemHeight)
+        );
+        this.virtualScrollData.scrollTop = scrollTop;
+        this.virtualScrollData.scrollLeft = scrollLeft;
+        this.virtualScrollData.scrollbarWidth = virtualScrollBody
+          //https://www.cnblogs.com/panjun-Donet/articles/1294033.html
+          ? (virtualScrollBody.offsetWidth - virtualScrollBody.clientWidth - 2 * virtualScrollBody.clientLeft)
+          : 16;
+        this.virtualScrollData.offsetWidth = virtualScrollBody ? virtualScrollBody.offsetWidth : (this.viewportWidth + 2);
+
       },
-      onVirtualScroll (e) {
+      onVirtualScroll(e)
+      {
         window.requestAnimationFrame(this.refreshRenderData);
       },
     },

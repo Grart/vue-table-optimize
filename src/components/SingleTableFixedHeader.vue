@@ -1,5 +1,19 @@
 <template>
-  <ul class='c-table-header__record' :style='getHeaderStyle'>
+
+  <ul class='c-table-header__record'
+      :style='getHeaderStyle'>
+    <li class='c-table-header-column'
+        :title='"ABS"'
+        :style='getColumnStyle'>
+      <div class='c-table-header-column__container'>
+        <!--<span v-if='!column.renderHeader'>{{column.title}}</span>
+        <render-header v-else :render='column.renderHeader' :column='column' :index='index'></render-header>-->
+        <span>sss</span>
+      </div>
+    </li>
+  </ul>
+
+  <!--<ul class='c-table-header__record' :style='getHeaderStyle'>
     <li class='c-table-header-column'
         v-for='(column, index) in columnsConfig'
         :key='column[cIdKey]'
@@ -11,7 +25,8 @@
         <render-header v-else :render='column.renderHeader' :column='column' :index='index'></render-header>
       </div>
     </li>
-  </ul>
+  </ul>-->
+
 </template>
 
 <script>
@@ -19,7 +34,7 @@
   import {ID_NAME} from './tableHelper/constant';
 
   export default {
-    name: 'SingleTableHeader',
+    name: 'SingleTableFixedHeader',
     components: {RenderHeader},
     props: {
       columnsConfig: Array,
@@ -40,18 +55,9 @@
     computed: {
       getHeaderStyle: function ()
       {
-        //表体宽度
-        let _bodyWidht = 0;
-        for (let _c = 0; _c < this.columnsConfig.length; _c++)
-        {
-          let _col = this.columnsConfig[_c];
-          _bodyWidht += parseInt(_col.cWidth ? _col.cWidth.replace('px', '') : _col.width);
-        }
-        let _translateX = `translateX(${-this.virtualScrollData.scrollLeft}px)`;
         return {
-          transform: _translateX,
           height: `${this.height}px`,
-          width: `${_bodyWidht}px`
+          width: `${200}px`
         };
       },
     },
@@ -59,7 +65,8 @@
       getColumnStyle: function (column)
       {
         return {
-          width: column.cWidth,
+          //width: column.cWidth,
+          width: `${200}px`,
           height: `${this.height}px`,
         };
       },

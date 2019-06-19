@@ -1,47 +1,65 @@
 <template>
-  <article class='c-table-wrapper'>
-    <section class='c-table-wrapper__header-wrapper' :class='headerClass'>
-      <table-header
-        :columns-config='columnsConfig'
-        :height='headerHeight'
-      ></table-header>
+  <article class='c-table-wrapper'
+           :style='{width: getHeaderWidth,position:"relative"}'>
+    <section class='c-table-wrapper__header-wrapper'
+             :class='headerClass'
+             :style='{width: bodyWidth+"px"}'
+             ref='tableHeader'>
+      <div :style='{width: getHeaderColumnWidth,"overflow-x":"hidden","overflow-y":"hidden"}'>
+        <table-header :columns-config='columnsConfig'
+                      :height='headerHeight'
+                      :virtual-scroll-data="virtualScrollData"></table-header>
+      </div>
     </section>
-    <table-body v-if='showRender("COMMON")'
-                :data='data'
-                :record-key='recordKey'
-                :columns-config='columnsConfig'
-                :record-height='recordHeight'
-                :body-height='bodyHeight'>
-    </table-body>
-    <request-animation-frame-table-body v-if='showRender("ANIMATION")'
-                                        :data='data'
-                                        :record-key='recordKey'
-                                        :columns-config='columnsConfig'
-                                        :record-height='recordHeight'
-                                        :body-height='bodyHeight'>
-    </request-animation-frame-table-body>
-    <virtual-scroll-table-body v-if='showRender("VIRTUAL")'
-                               :data='data'
+    <virtual-scroll-table-body :data='data'
                                :record-key='recordKey'
                                :columns-config='columnsConfig'
                                :item-height='recordHeight'
-                               :viewport-height='bodyHeight'>
+                               :viewport-height='bodyHeight'
+                               :viewport-width='bodyWidth'
+                               :virtual-scroll-data="virtualScrollData"
+                               @on-refresh-virtual-items='onRefreshVirtualItems'>
     </virtual-scroll-table-body>
+
+    <section :style='getFloatRightStyle'>
+      <section class='c-table-wrapper__header-wrapper'
+               :class='headerClass'
+               :style='{width: "200px"}'
+               ref='tableHeader'>
+        <table-fixed-header :columns-config='columnsConfig'
+                      :height='headerHeight'
+                      :virtual-scroll-data="virtualScrollData"></table-fixed-header>
+      </section>
+
+      <virtual-scroll-table-fixed-body :virtual-items='virtualItems'
+                                       :record-key='recordKey'
+                                       :columns-config='columnsConfig'
+                                        :item-height='recordHeight'
+                                       :body-height='getBodyHeigth'
+                                       :viewport-height='bodyHeight'
+                                       :viewport-width='bodyWidth'
+                                       :virtual-scroll-data="virtualScrollData">
+      </virtual-scroll-table-fixed-body>
+    </section>
   </article>
 </template>
 
 <script>
   import TableHeader from './SingleTableHeader';
+  import TableFixedHeader from './SingleTableFixedHeader';
   import TableBody from './SingleTableBody';
   import RequestAnimationFrameTableBody from './RequestAnimationFrameTableBody';
   import VirtualScrollTableBody from './VirtualScrollTableBody';
+  import VirtualScrollTableFixedBody from './VirtualScrollTableFixedBody';
 
   export default {
     components: {
       TableHeader,
+      TableFixedHeader,
       TableBody,
       RequestAnimationFrameTableBody,
       VirtualScrollTableBody,
+      VirtualScrollTableFixedBody,
     },
     name: 'SingleTable',
     props: {
@@ -50,18 +68,69 @@
       recordKey: String,
       headerHeight: Number,
       bodyHeight: Number,
+      bodyWidth: Number,
       recordHeight: Number,
       renderType: String,
       headerClass: String,
     },
     data () {
-      return {};
+      return {
+        //滚动条同步对像,body通过这个对像将同步信息传给header
+        virtualScrollData: {
+          scrollTop: 0,
+          scrollLeft: 0,
+          scrollbarWidth: 16,
+          offsetWidth: 0
+        },
+        virtualItems: {
+          renderData: [],
+          newItems: [],
+          replaceItemsIndex: 0
+        }
+      };
     },
-    computed: {},
+    computed: {
+      getBodyHeigth: function ()
+      {
+        return this.data.length * this.recordHeight;
+      },
+      getHeaderWidth: function ()
+      {
+        return `${(this.virtualScrollData ? this.virtualScrollData.offsetWidth : this.bodyWidth)}px`;
+      },
+      getHeaderColumnWidth: function ()
+      {
+        return `${(this.virtualScrollData ? this.virtualScrollData.offsetWidth : this.bodyWidth) - this.virtualScrollData.scrollbarWidth - 4}px`;
+      },
+      getFloatRightStyle: function ()
+      {
+        return {
+          top: `${0}px`,
+          right: `${this.virtualScrollData.scrollbarWidth + 1}px`,
+          width: `${200}px`,
+          height: `${this.bodyHeight + this.headerHeight - this.virtualScrollData.scrollbarWidth + 2}px`,
+          position: 'absolute',//顶层要用position: relative;
+          'background-color': 'ghostwhite',
+          "overflow-x": "hidden",
+          "overflow-y": "hidden"
+        };
+      },
+      getFloatRightHeaderStyle: function ()
+      {
+        console.log(`${this.headerHeight}px`);
+        return {
+          height: `${this.headerHeight}px`
+        };
+      }
+    },
     methods: {
       showRender: function (type) {
         return this.renderType === type;
       },
+      onRefreshVirtualItems: function (renderData)
+      {
+        this.virtualItems = { renderData };
+      }
     },
   };
 </script>
@@ -88,11 +157,14 @@
     width: 100%;
     border: 1px solid #dddddd;
     border-bottom: 0;
+    /*隐藏超过表体宽度的列*/
+    overflow-x: hidden;
   }
 
   .c-table-wrapper__body-wrapper {
     overflow-y: scroll;
-    width: 100%;
+    overflow-x: scroll;
+    /*width: 100%;*/
     border: 1px solid #dddddd;
   }
 

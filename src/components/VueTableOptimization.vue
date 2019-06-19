@@ -6,6 +6,7 @@
                   :record-key='recordKey'
                   :header-height='headerHeight'
                   :body-height='bodyHeight'
+                  :body-width='bodyWidth'
                   :record-height='recordHeight'
                   :render-type='renderType'
                   :header-class='headerClass'
@@ -21,6 +22,7 @@
     ID_NAME,
     SCROLL_WIDTH,
     DEFAULT_TABLE_HEIGHT,
+    DEFAULT_TABLE_WIDTH,
     DEFAULT_TABLE_HEADER_HEIGHT,
     DEFAULT_TABLE_RECORD_HEIGHT,
     TABLE_TYPE_COMMON,
@@ -117,6 +119,7 @@
         cloneColumnsConfig: [],
         cloneColumnsRow: [],
         bodyHeight: DEFAULT_TABLE_HEIGHT - DEFAULT_TABLE_HEADER_HEIGHT,
+        bodyWidth: DEFAULT_TABLE_WIDTH //- DEFAULT_TABLE_HEADER_HEIGHT,
       };
     },
     computed: {
