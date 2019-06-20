@@ -1,8 +1,8 @@
 {
-  "name": "nk-table-demo",
+  "name": "virtual-scroll-table",
   "version": "1.0.0",
-  "description": "A Vue.js project",
-  "author": "LINI5 <nickkcik.li@oocl.com>",
+  "description": "copy from https://github.com/kcikkick/vue-table-optimize",
+  "author": "Grart <grart_01@msn.com>",
   "private": true,
   "scripts": {
     "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
