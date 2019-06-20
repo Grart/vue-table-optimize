@@ -11,6 +11,7 @@
                       :virtual-scroll-data="virtualScrollData"></table-header>
       </div>
     </section>
+    <!--表格非固定列-->
     <virtual-scroll-table-body :data='data'
                                :record-key='recordKey'
                                :columns-config='getColumnsConfig'
@@ -63,7 +64,9 @@
   import RequestAnimationFrameTableBody from './RequestAnimationFrameTableBody';
   import VirtualScrollTableBody from './VirtualScrollTableBody';
   import VirtualScrollTableFixed from './VirtualScrollTableFixed';
-
+  /**
+   * 计算列宽
+   */
   function getColumnsWidth(columnsConfig)
   {
     let _bodyWidth = 0;
@@ -75,6 +78,7 @@
     }
     return _bodyWidth;
   }
+
   export default {
     components: {
       TableHeader,
