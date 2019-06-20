@@ -5,18 +5,18 @@
       <div class='c-table-body-container c-table-body-container__virtual'
            v-for='record in renderData'
            :key='record[recordKey]'
-           :style='getBodyContainerStyle(record)'
-      >
+           :style='getBodyContainerStyle(record)'>
         <ul class='c-table-body__record'
             :style='{height: getRecordHeight}'>
-          <!--:columnKey='column.key'
-  :title='record[column.key]'
-  :style='getColumnStyle(column)'-->
-          <li class='c-table-body-column'>
+          <li class='c-table-body-column'
+              v-for='(column, index) in columnsConfig'
+              :key='index'
+              :columnKey='column.key'
+              :title='record[column.key]'
+              :style='getColumnStyle(column)'>
             <div class='c-table-body-column__container'>
-              <!--<span v-if='!column.render'>{{record[column.key]}}</span>
-      <render-body v-else :key='column.key' :row='record' :render='column.render' :index='index'></render-body>-->
-              <span>{{record["actualDeparture"]}}</span>
+              <span v-if='!column.render'>{{record[column.key]}}</span>
+              <render-body v-else :key='column.key' :row='record' :render='column.render' :index='index'></render-body>
             </div>
           </li>
         </ul>
@@ -77,19 +77,17 @@
       },
       getBodyWidth: function ()
       {
-        return `${200}px`;
         return `${this.viewportWidth}px`;
       },
       getBodyWrapperStyle: function ()
       {
         //表体宽度
-        let _bodyWidht = 200;
         return {
           //overflow-y: scroll 元素Y坐标自动向上偏移的。
           //"overflow-y":"hidden" 元素Y坐标是固定的。
           transform: `translateY(${-this.virtualScrollData.scrollTop}px)`,
           height: `${this.bodyHeight}px`,
-          width: `${_bodyWidht}px`,
+          width: `${this.viewportWidth}px`,
           position: 'relative',
         };
       },

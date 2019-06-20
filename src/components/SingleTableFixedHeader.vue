@@ -1,19 +1,6 @@
 <template>
-
   <ul class='c-table-header__record'
       :style='getHeaderStyle'>
-    <li class='c-table-header-column'
-        :title='"ABS"'
-        :style='getColumnStyle'>
-      <div class='c-table-header-column__container'>
-        <!--<span v-if='!column.renderHeader'>{{column.title}}</span>
-        <render-header v-else :render='column.renderHeader' :column='column' :index='index'></render-header>-->
-        <span>sss</span>
-      </div>
-    </li>
-  </ul>
-
-  <!--<ul class='c-table-header__record' :style='getHeaderStyle'>
     <li class='c-table-header-column'
         v-for='(column, index) in columnsConfig'
         :key='column[cIdKey]'
@@ -25,7 +12,7 @@
         <render-header v-else :render='column.renderHeader' :column='column' :index='index'></render-header>
       </div>
     </li>
-  </ul>-->
+  </ul>
 
 </template>
 
@@ -38,6 +25,7 @@
     components: {RenderHeader},
     props: {
       columnsConfig: Array,
+      columnsWidth: Number,
       height: Number,
       virtualScrollData: {
         type: Object,
@@ -57,7 +45,7 @@
       {
         return {
           height: `${this.height}px`,
-          width: `${200}px`
+          width: `${this.columnsWidth}px`
         };
       },
     },
@@ -65,8 +53,8 @@
       getColumnStyle: function (column)
       {
         return {
-          //width: column.cWidth,
-          width: `${200}px`,
+          width: column.cWidth,
+          //width: `${200}px`,
           height: `${this.height}px`,
         };
       },

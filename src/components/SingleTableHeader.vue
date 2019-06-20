@@ -42,9 +42,10 @@
       {
         //表体宽度
         let _bodyWidht = 0;
-        for (let _c = 0; _c < this.columnsConfig.length; _c++)
+        let _cfg = this.columnsConfig;
+        for (let _c = 0; _c < _cfg.length; _c++)
         {
-          let _col = this.columnsConfig[_c];
+          let _col = _cfg[_c];
           _bodyWidht += parseInt(_col.cWidth ? _col.cWidth.replace('px', '') : _col.width);
         }
         let _translateX = `translateX(${-this.virtualScrollData.scrollLeft}px)`;

@@ -154,6 +154,7 @@
             key: 'predictArrival',
             index: 12,
             enableEllipsis: true,
+            fixed: 'right'
           },
           {
             title: 'Potential Delay(Hrs)',
@@ -162,6 +163,7 @@
             key: 'potentialDelay',
             index: 13,
             enableEllipsis: true,
+            fixed: 'right',
             render: (h, params) => {
               return h('div', [
                 h('p', {

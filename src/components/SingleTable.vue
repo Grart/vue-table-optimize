@@ -21,24 +21,28 @@
                                @on-refresh-virtual-items='onRefreshVirtualItems'>
     </virtual-scroll-table-body>
 
-    <section :style='getFloatRightStyle'>
+    <section :style='getFloatRightStyle' class="fiexedRight">
       <section class='c-table-wrapper__header-wrapper'
                :class='headerClass'
-               :style='{width: "200px"}'
+               :style='{width: getFixedColumnsWidth+"px"}'
                ref='tableHeader'>
-        <table-fixed-header :columns-config='columnsConfig'
-                      :height='headerHeight'
-                      :virtual-scroll-data="virtualScrollData"></table-fixed-header>
+        <table-fixed-header
+          :columns-config='getFixedColumnsConfig'
+          :columns-width="getFixedColumnsWidth"
+          :height='headerHeight'
+          :virtual-scroll-data="virtualScrollData">
+        </table-fixed-header>
       </section>
 
-      <virtual-scroll-table-fixed-body :virtual-items='virtualItems'
-                                       :record-key='recordKey'
-                                       :columns-config='columnsConfig'
-                                        :item-height='recordHeight'
-                                       :body-height='getBodyHeigth'
-                                       :viewport-height='bodyHeight'
-                                       :viewport-width='bodyWidth'
-                                       :virtual-scroll-data="virtualScrollData">
+      <virtual-scroll-table-fixed-body
+          :virtual-items='virtualItems'
+          :record-key='recordKey'
+          :columns-config='getFixedColumnsConfig'
+          :item-height='recordHeight'
+          :body-height='getBodyHeigth'
+          :viewport-height='bodyHeight'
+          :viewport-width='getFixedColumnsWidth'
+          :virtual-scroll-data="virtualScrollData">
       </virtual-scroll-table-fixed-body>
     </section>
   </article>
@@ -90,6 +94,37 @@
       };
     },
     computed: {
+      getColumnsConfig: function ()
+      {
+        if (!this.columnsConfig)
+        {
+          return [];
+        }
+        return this.columnsConfig.filter(
+          m => m.fixed != 'right' && m.fixed != 'left'
+        );
+      },
+      getFixedColumnsConfig: function ()
+      {
+        if (!this.columnsConfig)
+        {
+          return [];
+        }
+        return this.columnsConfig.filter(
+          m => m.fixed == 'right'
+        );
+      },
+      getFixedColumnsWidth: function ()
+      {
+        let _bodyWidth = 0;
+        let _cfg = this.getFixedColumnsConfig;
+        for (let _c = 0; _c < _cfg.length; _c++)
+        {
+          let _col = _cfg[_c];
+          _bodyWidth += parseInt(_col.cWidth ? _col.cWidth.replace('px', '') : _col.width);
+        }
+        return _bodyWidth;
+      },
       getBodyHeigth: function ()
       {
         return this.data.length * this.recordHeight;
@@ -107,12 +142,13 @@
         return {
           top: `${0}px`,
           right: `${this.virtualScrollData.scrollbarWidth + 1}px`,
-          width: `${200}px`,
+          width: `${this.getFixedColumnsWidth}px`,
           height: `${this.bodyHeight + this.headerHeight - this.virtualScrollData.scrollbarWidth + 2}px`,
           position: 'absolute',//顶层要用position: relative;
           'background-color': 'ghostwhite',
           "overflow-x": "hidden",
-          "overflow-y": "hidden"
+          "overflow-y": "hidden",
+          'box-sizing':'order-box'
         };
       },
       getFloatRightHeaderStyle: function ()
@@ -136,6 +172,18 @@
 </script>
 
 <style>
+  .fiexedRight,
+  .fiexedRight:after,
+  .fiexedRight:before {
+    box-shadow: -2px 0 6px -2px rgba(0,0,0,.2);
+  }
+
+  .fiexedLeft,
+  .fiexedLeft:after,
+  .fiexedLeft:before {
+    box-shadow: 2px 0 6px -2px rgba(0,0,0,.2);
+  }
+
   ul {
     padding-left: 0;
     margin: 0;
