@@ -1,4 +1,5 @@
 <template>
+  <!--表格左右固定列表体-->
   <section class='c-table-wrapper__body-wrapper c-table-body-wrapper__virtual'
            :style='{height: getBodyHeight,width:getBodyWidth,"overflow-x":"hidden","overflow-y":"hidden","border": "1px solid #dddddd"}'>
     <div :style='getBodyWrapperStyle'>

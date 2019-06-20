@@ -21,40 +21,43 @@
                                @on-refresh-virtual-items='onRefreshVirtualItems'>
     </virtual-scroll-table-body>
 
-    <section :style='getFloatRightStyle' class="fiexedRight">
-      <section class='c-table-wrapper__header-wrapper'
-               :class='headerClass'
-               :style='{width: getFixedColumnsWidth+"px"}'
-               ref='tableHeader'>
-        <table-fixed-header
-          :columns-config='getFixedColumnsConfig'
-          :columns-width="getFixedColumnsWidth"
-          :height='headerHeight'
-          :virtual-scroll-data="virtualScrollData">
-        </table-fixed-header>
-      </section>
+    <!--表格左固定列-->
+    <virtual-scroll-table-fixed :fixedStyle="getFixedLeftStyle"
+                                :virtual-items='virtualItems'
+                                :virtual-scroll-data="virtualScrollData"
+                                :record-key='recordKey'
+                                :columns-config='getFixedLeftColumnsConfig'
+                                :header-height='headerHeight'
+                                :item-height='recordHeight'
+                                :body-height='getBodyHeight'
+                                :fixed-height='bodyHeight'
+                                :fixed-width='getFixedLeftWidth'>
+    </virtual-scroll-table-fixed>
 
-      <virtual-scroll-table-fixed-body
-          :virtual-items='virtualItems'
-          :record-key='recordKey'
-          :columns-config='getFixedColumnsConfig'
-          :item-height='recordHeight'
-          :body-height='getBodyHeigth'
-          :viewport-height='bodyHeight'
-          :viewport-width='getFixedColumnsWidth'
-          :virtual-scroll-data="virtualScrollData">
-      </virtual-scroll-table-fixed-body>
-    </section>
+    <!--表格右固定列-->
+    <virtual-scroll-table-fixed :fixedStyle="getFixedRightStyle"
+                                :virtual-items='virtualItems'
+                                :virtual-scroll-data="virtualScrollData"
+                                :record-key='recordKey'
+                                :columns-config='getFixedRightColumnsConfig'
+                                :header-height='headerHeight'
+                                :item-height='recordHeight'
+                                :body-height='getBodyHeight'
+                                :fixed-height='bodyHeight'
+                                :fixed-width='getFixedRightWidth'>
+    </virtual-scroll-table-fixed>
+
   </article>
 </template>
 
 <script>
   import TableHeader from './SingleTableHeader';
-  import TableFixedHeader from './SingleTableFixedHeader';
   import TableBody from './SingleTableBody';
   import RequestAnimationFrameTableBody from './RequestAnimationFrameTableBody';
   import VirtualScrollTableBody from './VirtualScrollTableBody';
+  import TableFixedHeader from './SingleTableFixedHeader';
   import VirtualScrollTableFixedBody from './VirtualScrollTableFixedBody';
+  import VirtualScrollTableFixed from './VirtualScrollTableFixed';
 
   export default {
     components: {
@@ -64,6 +67,7 @@
       RequestAnimationFrameTableBody,
       VirtualScrollTableBody,
       VirtualScrollTableFixedBody,
+      VirtualScrollTableFixed,
     },
     name: 'SingleTable',
     props: {
@@ -104,7 +108,17 @@
           m => m.fixed != 'right' && m.fixed != 'left'
         );
       },
-      getFixedColumnsConfig: function ()
+      getFixedLeftColumnsConfig: function ()
+      {
+        if (!this.columnsConfig)
+        {
+          return [];
+        }
+        return this.columnsConfig.filter(
+          m => m.fixed == 'left'
+        );
+      },
+      getFixedRightColumnsConfig: function ()
       {
         if (!this.columnsConfig)
         {
@@ -114,10 +128,10 @@
           m => m.fixed == 'right'
         );
       },
-      getFixedColumnsWidth: function ()
+      getFixedLeftWidth: function ()
       {
         let _bodyWidth = 0;
-        let _cfg = this.getFixedColumnsConfig;
+        let _cfg = this.getFixedLeftColumnsConfig;
         for (let _c = 0; _c < _cfg.length; _c++)
         {
           let _col = _cfg[_c];
@@ -125,7 +139,18 @@
         }
         return _bodyWidth;
       },
-      getBodyHeigth: function ()
+      getFixedRightWidth: function ()
+      {
+        let _bodyWidth = 0;
+        let _cfg = this.getFixedRightColumnsConfig;
+        for (let _c = 0; _c < _cfg.length; _c++)
+        {
+          let _col = _cfg[_c];
+          _bodyWidth += parseInt(_col.cWidth ? _col.cWidth.replace('px', '') : _col.width);
+        }
+        return _bodyWidth;
+      },
+      getBodyHeight: function ()
       {
         return this.data.length * this.recordHeight;
       },
@@ -137,18 +162,32 @@
       {
         return `${(this.virtualScrollData ? this.virtualScrollData.offsetWidth : this.bodyWidth) - this.virtualScrollData.scrollbarWidth - 4}px`;
       },
-      getFloatRightStyle: function ()
+      getFixedRightStyle: function ()
       {
         return {
           top: `${0}px`,
           right: `${this.virtualScrollData.scrollbarWidth + 1}px`,
-          width: `${this.getFixedColumnsWidth}px`,
+          width: `${this.getFixedRightWidth}px`,
           height: `${this.bodyHeight + this.headerHeight - this.virtualScrollData.scrollbarWidth + 2}px`,
           position: 'absolute',//顶层要用position: relative;
           'background-color': 'ghostwhite',
           "overflow-x": "hidden",
           "overflow-y": "hidden",
-          'box-sizing':'order-box'
+          'box-sizing': 'order-box'
+        };
+      },
+      getFixedLeftStyle: function ()
+      {
+        return {
+          top: `${0}px`,
+          left: `${1}px`,
+          width: `${this.getFixedLeftWidth}px`,
+          height: `${this.bodyHeight + this.headerHeight - this.virtualScrollData.scrollbarWidth + 2}px`,
+          position: 'absolute',//顶层要用position: relative;
+          'background-color': 'ghostwhite',
+          "overflow-x": "hidden",
+          "overflow-y": "hidden",
+          'box-sizing': 'order-box'
         };
       },
       getFloatRightHeaderStyle: function ()
@@ -172,15 +211,15 @@
 </script>
 
 <style>
-  .fiexedRight,
-  .fiexedRight:after,
-  .fiexedRight:before {
+  .c-table-fiexed-right,
+  .c-table-fiexed-right:after,
+  .c-table-fiexed-right:before {
     box-shadow: -2px 0 6px -2px rgba(0,0,0,.2);
   }
 
-  .fiexedLeft,
-  .fiexedLeft:after,
-  .fiexedLeft:before {
+  .c-table-fiexed-left,
+  .c-table-fiexed-left:after,
+  .c-table-fiexed-left:before {
     box-shadow: 2px 0 6px -2px rgba(0,0,0,.2);
   }
 

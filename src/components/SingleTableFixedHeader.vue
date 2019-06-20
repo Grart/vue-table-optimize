@@ -1,4 +1,5 @@
 <template>
+  <!--表格左右固定列列头-->
   <ul class='c-table-header__record'
       :style='getHeaderStyle'>
     <li class='c-table-header-column'

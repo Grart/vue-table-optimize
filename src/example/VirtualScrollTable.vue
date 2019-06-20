@@ -37,6 +37,7 @@
             sortable: true,
             width: 140,
             disableDrag: true,
+            fixed: 'left',
             getSortValue: function (a) {
               const statusMapping = {
                 Normal: 1,
