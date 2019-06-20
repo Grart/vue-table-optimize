@@ -16,7 +16,7 @@
 
 <script>
   import result from './data/schedule';
-  import VueVirtualScrollTable from '../components/VueVirtualScrollTable.vue';
+  import VueVirtualScrollTable from '../index';
   import {
     displayColor,
     displayDelayContent,
