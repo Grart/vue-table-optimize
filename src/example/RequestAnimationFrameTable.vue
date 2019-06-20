@@ -11,7 +11,7 @@
 
 <script>
   import result from './data/schedule';
-  import VueTableOptimization from '../components/VueTableOptimization.vue';
+  import VueTableOptimization from '../components/VueVirtualScrollTable.vue';
   import {
     displayColor,
     displayDelayContent,

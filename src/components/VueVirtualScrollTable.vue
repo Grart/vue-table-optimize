@@ -31,7 +31,7 @@
 
   export default {
     components: {SingleTable},
-    name: 'VueTableOptimization',
+    name: 'VueVirtualScrollTable',
     props: {
       renderType: {
         type: String,

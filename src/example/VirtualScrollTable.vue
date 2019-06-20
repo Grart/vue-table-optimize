@@ -1,13 +1,13 @@
 <template>
   <div>
-    <vue-table-optimization
+    <vue-virtual-scroll-table
       :columns-config='tableTitle'
       :data='result'
       :table-width="1000"
       render-type='VIRTUAL'
       record-key='_id'
       header-class='header-title__virtual'
-    ></vue-table-optimization>
+    ></vue-virtual-scroll-table>
     <div>
       <h2>ddd</h2>
     </div>
@@ -16,7 +16,7 @@
 
 <script>
   import result from './data/schedule';
-  import VueTableOptimization from '../components/VueTableOptimization.vue';
+  import VueVirtualScrollTable from '../components/VueVirtualScrollTable.vue';
   import {
     displayColor,
     displayDelayContent,
@@ -28,7 +28,7 @@
 
   export default {
     name: 'VirtualScrollTable',
-    components: { VueTableOptimization},
+    components: { VueVirtualScrollTable},
     data () {
       return {
         result: result,
