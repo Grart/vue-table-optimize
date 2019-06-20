@@ -3,27 +3,31 @@
            ref='virtualScrollBody'
            @scroll.passive='onVirtualScroll'
            :style='{height: getBodyHeight,width:getBodyWidth}'>
+    <!--用总宽度撑出正确的横向滚动条-->
+    <div :style='{width:(bodyWidth+fixedLeftWidth + fixedRightWidth)+"px"}'>
 
-    <div :style='getBodyWrapperStyle'>
-      <div class='c-table-body-container c-table-body-container__virtual'
-           v-for='record in renderData'
-           :key='record[recordKey]'
-           :style='getBodyContainerStyle(record)'>
-        <ul class='c-table-body__record'
-            :style='{height: getRecordHeight}'>
-          <li class='c-table-body-column'
-              v-for='(column, index) in columnsConfig'
-              :key='index'
-              :columnKey='column.key'
-              :title='record[column.key]'
-              :style='getColumnStyle(column)'>
-            <div class='c-table-body-column__container'>
-              <span v-if='!column.render'>{{record[column.key]}}</span>
-              <render-body v-else :key='column.key' :row='record' :render='column.render' :index='index'></render-body>
-            </div>
-          </li>
-        </ul>
+      <div :style='getBodyWrapperStyle'>
+        <div class='c-table-body-container c-table-body-container__virtual'
+             v-for='record in renderData'
+             :key='record[recordKey]'
+             :style='getBodyContainerStyle(record)'>
+          <ul class='c-table-body__record'
+              :style='{height: getRecordHeight}'>
+            <li class='c-table-body-column'
+                v-for='(column, index) in columnsConfig'
+                :key='index'
+                :columnKey='column.key'
+                :title='record[column.key]'
+                :style='getColumnStyle(column)'>
+              <div class='c-table-body-column__container'>
+                <span v-if='!column.render'>{{record[column.key]}}</span>
+                <render-body v-else :key='column.key' :row='record' :render='column.render' :index='index'></render-body>
+              </div>
+            </li>
+          </ul>
+        </div>
       </div>
+
     </div>
   </section>
 </template>
@@ -41,6 +45,9 @@
       columnsConfig: Array,
       data: Array,
       recordKey: String,
+      fixedLeftWidth: Number,
+      fixedRightWidth: Number,
+      bodyWidth: Number,
       itemHeight: Number,
       viewportHeight: Number,
       viewportWidth: Number,
@@ -90,16 +97,11 @@
       },
       getBodyWrapperStyle: function ()
       {
-        //表体宽度
-        let _bodyWidht = 0;
-        for (let _c = 0; _c < this.columnsConfig.length; _c++)
-        {
-          let _col = this.columnsConfig[_c];
-          _bodyWidht += parseInt(_col.cWidth ? _col.cWidth.replace('px', '') : _col.width);
-        }
         return {
+          'margin-left': `${this.fixedLeftWidth}px`,//左右固定的那些列是不显示的
+          'margin-right': `${this.fixedRightWidth}px`,
           height: `${this.data.length * this.itemHeight}px`,
-          width: `${_bodyWidht }px`,
+          width: `${this.bodyWidth}px`,//表体宽度
           position: 'relative',
         };
       },

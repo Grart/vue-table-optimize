@@ -1,7 +1,7 @@
 <template>
   <!--表格左右固定列组件-->
   <section :style='fixedStyle'
-           class="c-table-fiexed-right">
+           :class="tableFiexedClass">
     <section class='c-table-wrapper__header-wrapper'
              :class='headerClass'
              :style='{width: fixedWidth+"px"}'>
@@ -33,6 +33,8 @@
     name: 'VirtualScrollTableFixed',
     components: { TableFixedHeader, VirtualScrollTableFixedBody},
     props: {
+      headerClass: String,
+      tableFiexedClass: String,
       fixedStyle: Object,
       columnsConfig: Array,
       virtualItems: Object,

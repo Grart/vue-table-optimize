@@ -3,6 +3,7 @@
     <vue-table-optimization
       :columns-config='tableTitle'
       :data='result'
+      :table-width="1000"
       render-type='VIRTUAL'
       record-key='_id'
       header-class='header-title__virtual'

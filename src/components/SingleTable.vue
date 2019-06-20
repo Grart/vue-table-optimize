@@ -3,7 +3,7 @@
            :style='{width: getHeaderWidth,position:"relative"}'>
     <section class='c-table-wrapper__header-wrapper'
              :class='headerClass'
-             :style='{width: bodyWidth+"px"}'
+             :style='{width: tableWidth+"px"}'
              ref='tableHeader'>
       <div :style='{width: getHeaderColumnWidth,"overflow-x":"hidden","overflow-y":"hidden"}'>
         <table-header :columns-config='columnsConfig'
@@ -13,16 +13,21 @@
     </section>
     <virtual-scroll-table-body :data='data'
                                :record-key='recordKey'
-                               :columns-config='columnsConfig'
+                               :columns-config='getColumnsConfig'
+                               :body-width="getUnFixedWidth"
+                               :fixed-left-width="getFixedLeftWidth"
+                               :fixed-right-width="getFixedRightWidth"
                                :item-height='recordHeight'
                                :viewport-height='bodyHeight'
-                               :viewport-width='bodyWidth'
+                               :viewport-width='tableWidth'
                                :virtual-scroll-data="virtualScrollData"
                                @on-refresh-virtual-items='onRefreshVirtualItems'>
     </virtual-scroll-table-body>
 
     <!--表格左固定列-->
     <virtual-scroll-table-fixed :fixedStyle="getFixedLeftStyle"
+                                :table-fiexed-class="'c-table-fiexed-left'"
+                                :headerClass="headerClass"
                                 :virtual-items='virtualItems'
                                 :virtual-scroll-data="virtualScrollData"
                                 :record-key='recordKey'
@@ -36,6 +41,8 @@
 
     <!--表格右固定列-->
     <virtual-scroll-table-fixed :fixedStyle="getFixedRightStyle"
+                                :table-fiexed-class="'c-table-fiexed-right'"
+                                :headerClass="headerClass"
                                 :virtual-items='virtualItems'
                                 :virtual-scroll-data="virtualScrollData"
                                 :record-key='recordKey'
@@ -55,18 +62,25 @@
   import TableBody from './SingleTableBody';
   import RequestAnimationFrameTableBody from './RequestAnimationFrameTableBody';
   import VirtualScrollTableBody from './VirtualScrollTableBody';
-  import TableFixedHeader from './SingleTableFixedHeader';
-  import VirtualScrollTableFixedBody from './VirtualScrollTableFixedBody';
   import VirtualScrollTableFixed from './VirtualScrollTableFixed';
 
+  function getColumnsWidth(columnsConfig)
+  {
+    let _bodyWidth = 0;
+    let _cfg = columnsConfig;
+    for (let _c = 0; _c < _cfg.length; _c++)
+    {
+      let _col = _cfg[_c];
+      _bodyWidth += parseInt(_col.cWidth ? _col.cWidth.replace('px', '') : _col.width);
+    }
+    return _bodyWidth;
+  }
   export default {
     components: {
       TableHeader,
-      TableFixedHeader,
       TableBody,
       RequestAnimationFrameTableBody,
       VirtualScrollTableBody,
-      VirtualScrollTableFixedBody,
       VirtualScrollTableFixed,
     },
     name: 'SingleTable',
@@ -76,7 +90,7 @@
       recordKey: String,
       headerHeight: Number,
       bodyHeight: Number,
-      bodyWidth: Number,
+      tableWidth: Number,
       recordHeight: Number,
       renderType: String,
       headerClass: String,
@@ -130,25 +144,19 @@
       },
       getFixedLeftWidth: function ()
       {
-        let _bodyWidth = 0;
-        let _cfg = this.getFixedLeftColumnsConfig;
-        for (let _c = 0; _c < _cfg.length; _c++)
-        {
-          let _col = _cfg[_c];
-          _bodyWidth += parseInt(_col.cWidth ? _col.cWidth.replace('px', '') : _col.width);
-        }
-        return _bodyWidth;
+        return getColumnsWidth(this.getFixedLeftColumnsConfig);
       },
       getFixedRightWidth: function ()
       {
-        let _bodyWidth = 0;
-        let _cfg = this.getFixedRightColumnsConfig;
-        for (let _c = 0; _c < _cfg.length; _c++)
-        {
-          let _col = _cfg[_c];
-          _bodyWidth += parseInt(_col.cWidth ? _col.cWidth.replace('px', '') : _col.width);
-        }
-        return _bodyWidth;
+        return getColumnsWidth(this.getFixedRightColumnsConfig);
+      },
+      getBodyWidth: function ()
+      {
+        return getColumnsWidth(this.columnsConfig);
+      },
+      getUnFixedWidth: function ()
+      {
+        return getColumnsWidth(this.getColumnsConfig);
       },
       getBodyHeight: function ()
       {
@@ -156,11 +164,11 @@
       },
       getHeaderWidth: function ()
       {
-        return `${(this.virtualScrollData ? this.virtualScrollData.offsetWidth : this.bodyWidth)}px`;
+        return `${(this.virtualScrollData ? this.virtualScrollData.offsetWidth : this.tableWidth)}px`;
       },
       getHeaderColumnWidth: function ()
       {
-        return `${(this.virtualScrollData ? this.virtualScrollData.offsetWidth : this.bodyWidth) - this.virtualScrollData.scrollbarWidth - 4}px`;
+        return `${(this.virtualScrollData ? this.virtualScrollData.offsetWidth : this.tableWidth) - this.virtualScrollData.scrollbarWidth - 4}px`;
       },
       getFixedRightStyle: function ()
       {

@@ -6,7 +6,7 @@
                   :record-key='recordKey'
                   :header-height='headerHeight'
                   :body-height='bodyHeight'
-                  :body-width='bodyWidth'
+                  :table-width='tableWidth'
                   :record-height='recordHeight'
                   :render-type='renderType'
                   :header-class='headerClass'
@@ -85,6 +85,14 @@
           return 'c-table-header__default';
         },
       },
+
+      tableWidth: {
+        type: Number,
+        default: function ()
+        {
+          return DEFAULT_TABLE_WIDTH;//- DEFAULT_TABLE_HEADER_HEIGHT,
+        },
+      },
     },
     mounted () {
       this.handleResize();
@@ -118,8 +126,7 @@
         filterResult: [],
         cloneColumnsConfig: [],
         cloneColumnsRow: [],
-        bodyHeight: DEFAULT_TABLE_HEIGHT - DEFAULT_TABLE_HEADER_HEIGHT,
-        bodyWidth: DEFAULT_TABLE_WIDTH //- DEFAULT_TABLE_HEADER_HEIGHT,
+        bodyHeight: DEFAULT_TABLE_HEIGHT - DEFAULT_TABLE_HEADER_HEIGHT
       };
     },
     computed: {
