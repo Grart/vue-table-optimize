@@ -15,8 +15,9 @@
 </template>
 
 <script>
+  import VueVirtualScrollTable from '../../vue-virtual-scroll-table'
   import result from './data/schedule';
-  import VueVirtualScrollTable from '../index';
+  //import VueVirtualScrollTable from '../index';
   import {
     displayColor,
     displayDelayContent,

@@ -1,0 +1,11 @@
+{
+  "name": "vue-virtual-scroll-table",
+  "version": "1.0.0",
+  "description": "copy from https://github.com/kcikkick/vue-table-optimize",
+  "author": "Grart <grart_01@msn.com>",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "license": "ISC"
+}
