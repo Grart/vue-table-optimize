@@ -5,11 +5,11 @@
     <section class='c-table-wrapper__header-wrapper'
              :class='headerClass'
              :style='{width: fixedWidth+"px"}'>
-      <table-fixed-header :columns-config='columnsConfig'
+      <virtual-scroll-table-fixed-header :columns-config='columnsConfig'
                           :columns-width="fixedWidth"
                           :height='headerHeight'
                           :virtual-scroll-data="virtualScrollData">
-      </table-fixed-header>
+      </virtual-scroll-table-fixed-header>
     </section>
 
     <virtual-scroll-table-fixed-body :virtual-items='virtualItems'
@@ -26,12 +26,12 @@
 
 <script>
   import _ from 'lodash';
-  import TableFixedHeader from './SingleTableFixedHeader';
+  import VirtualScrollTableFixedHeader from './VirtualScrollTableFixedHeader';
   import VirtualScrollTableFixedBody from './VirtualScrollTableFixedBody';
 
   export default {
     name: 'VirtualScrollTableFixed',
-    components: { TableFixedHeader, VirtualScrollTableFixedBody},
+    components: { VirtualScrollTableFixedHeader, VirtualScrollTableFixedBody},
     props: {
       headerClass: String,
       tableFiexedClass: String,

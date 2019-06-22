@@ -97,7 +97,10 @@
       tableWidth: Number,
       recordHeight: Number,
       renderType: String,
-      headerClass: String,
+      headerClass : {
+        type: String,
+        default: 'c-table-header-default'
+      },
     },
     data () {
       return {
@@ -223,6 +226,13 @@
 </script>
 
 <style>
+  .c-table-header-default {
+    background-color: #f8f8f9;
+    color: #495060;
+    font-size: 14px;
+    font-weight: bold;
+  }
+  
   .c-table-fiexed-right,
   .c-table-fiexed-right:after,
   .c-table-fiexed-right:before {

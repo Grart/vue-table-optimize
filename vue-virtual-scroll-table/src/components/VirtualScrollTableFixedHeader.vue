@@ -22,7 +22,7 @@
   import {ID_NAME} from './tableHelper/constant';
 
   export default {
-    name: 'SingleTableFixedHeader',
+    name: 'VirtualScrollTableFixedHeader',
     components: {RenderHeader},
     props: {
       columnsConfig: Array,
