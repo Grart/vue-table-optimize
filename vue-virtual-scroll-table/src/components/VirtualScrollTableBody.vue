@@ -4,7 +4,7 @@
            @scroll.passive='onVirtualScroll'
            :style='{height: getBodyHeight,width:getBodyWidth}'>
     <!--用总宽度撑出正确的横向滚动条-->
-    <div :style='{width:(bodyWidth+fixedLeftWidth + fixedRightWidth)+"px"}'>
+    <div :style='{height: getBodyHeight,width:(bodyWidth+fixedLeftWidth + fixedRightWidth)+"px"}'>
 
       <div :style='getBodyWrapperStyle'>
         <div class='c-table-body-container c-table-body-container__virtual'
@@ -21,7 +21,7 @@
                 :style='getColumnStyle(column)'>
               <div class='c-table-body-column__container'>
                 <span v-if='!column.render'>{{record[column.key]}}</span>
-                <render-body v-else :key='column.key' :row='record' :render='column.render' :index='index'></render-body>
+                <render-body v-else :key='column.key' :row='record' :render='column.render' :index='index' :column='column'></render-body>
               </div>
             </li>
           </ul>
@@ -103,6 +103,7 @@
           height: `${this.data.length * this.itemHeight}px`,
           width: `${this.bodyWidth}px`,//表体宽度
           position: 'relative',
+          //"border-bottom": this.renderData.length > 0 ? "1px solid #dddddd" : ""
         };
       },
     },

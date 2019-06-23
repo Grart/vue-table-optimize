@@ -17,7 +17,7 @@
               :style='getColumnStyle(column)'>
             <div class='c-table-body-column__container'>
               <span v-if='!column.render'>{{record[column.key]}}</span>
-              <render-body v-else :key='column.key' :row='record' :render='column.render' :index='index'></render-body>
+              <render-body v-else :key='column.key' :row='record' :render='column.render' :index='index' :column='column'></render-body>
             </div>
           </li>
         </ul>
@@ -82,6 +82,7 @@
       },
       getBodyWrapperStyle: function ()
       {
+        console.log(this.renderData);
         //表体宽度
         return {
           //overflow-y: scroll 元素Y坐标自动向上偏移的。
@@ -90,6 +91,7 @@
           height: `${this.bodyHeight}px`,
           width: `${this.viewportWidth}px`,
           position: 'relative',
+          //"border-bottom": this.renderData.length > 0 ? "1px solid #dddddd" : ""
         };
       },
     },

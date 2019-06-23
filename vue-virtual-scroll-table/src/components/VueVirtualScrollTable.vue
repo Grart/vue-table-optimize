@@ -152,7 +152,7 @@
         let widthCount = 0;
         let columnsConfig = _.cloneDeep(this.cloneColumnsConfig);
         for (const column of columnsConfig) {
-          if (column.width) {
+          if (column.width = column.width || column.minWidth) {
             width += column.width;
             widthCount++;
           }

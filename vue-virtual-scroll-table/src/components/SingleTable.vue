@@ -275,6 +275,7 @@
     overflow-x: scroll;
     /*width: 100%;*/
     border: 1px solid #dddddd;
+    
   }
 
   .c-table-wrapper__header-wrapper,
@@ -289,7 +290,8 @@
   }
 
   .c-table-header__record {
-    padding-right: 17px;
+    padding-right: 0px;
+    /* padding-right: 17px; */
   }
 
   .c-table-header-column,
@@ -314,7 +316,7 @@
   }
 
   .c-table-body-container:last-child .c-table-body__record {
-    border-bottom: 0;
+    /*border-bottom: 0;*/
   }
 
   .c-table-header__default {
