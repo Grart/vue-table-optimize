@@ -5,14 +5,17 @@
              :class='headerClass'
              :style='{width: tableWidth+"px"}'
              ref='tableHeader'>
-      <div :style='{width: getHeaderColumnWidth,"overflow-x":"hidden","overflow-y":"hidden"}'>
-        <table-header :columns-config='columnsConfig'
+      <div :style='{width: getHeaderWidth,height:"42px","overflow-x":"hidden","overflow-y":"hidden"}'>
+        <table-header v-if="bodyVisable"
+                      :columns-config='columnsConfig'
                       :height='headerHeight'
-                      :virtual-scroll-data="virtualScrollData"></table-header>
+                      :virtual-scroll-data="virtualScrollData">
+        </table-header>
       </div>
     </section>
     <!--表格非固定列-->
-    <virtual-scroll-table-body :data='data'
+    <virtual-scroll-table-body v-if="bodyVisable"
+                               :data='data'
                                :record-key='recordKey'
                                :columns-config='getColumnsConfig'
                                :body-width="getUnFixedWidth"
@@ -96,7 +99,6 @@
       bodyHeight: Number,
       tableWidth: Number,
       recordHeight: Number,
-      renderType: String,
       headerClass : {
         type: String,
         default: 'c-table-header-default'
@@ -115,7 +117,8 @@
           renderData: [],
           newItems: [],
           replaceItemsIndex: 0
-        }
+        },
+        bodyVisable: false
       };
     },
     computed: {
@@ -171,7 +174,9 @@
       },
       getHeaderWidth: function ()
       {
-        return `${(this.virtualScrollData ? this.virtualScrollData.offsetWidth : this.tableWidth)}px`;
+        console.log(this.virtualScrollData.offsetWidth);
+        return this.tableWidth ? `${this.tableWidth}px` : 'inherit';
+        //return `${(this.virtualScrollData ? this.virtualScrollData.offsetWidth : this.tableWidth)}px`;
       },
       getHeaderColumnWidth: function ()
       {
@@ -214,14 +219,17 @@
       }
     },
     methods: {
-      showRender: function (type) {
-        return this.renderType === type;
-      },
       onRefreshVirtualItems: function (renderData)
       {
         this.virtualItems = { renderData };
       }
     },
+    mounted: function ()
+    {
+      this.bodyVisable = !!this.$refs.tableHeader;
+      console.log(this.$refs.tableHeader.offsetWidth)
+      console.log(this.$refs.tableHeader.clientWidth);
+    }
   };
 </script>
 

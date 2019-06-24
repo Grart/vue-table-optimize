@@ -82,7 +82,6 @@
       },
       getBodyWrapperStyle: function ()
       {
-        console.log(this.renderData);
         //表体宽度
         return {
           //overflow-y: scroll 元素Y坐标自动向上偏移的。

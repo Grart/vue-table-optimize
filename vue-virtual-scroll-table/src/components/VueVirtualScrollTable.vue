@@ -8,7 +8,6 @@
                   :body-height='bodyHeight'
                   :table-width='tableWidth'
                   :record-height='recordHeight'
-                  :render-type='renderType'
                   :header-class='headerClass'
     ></single-table>
   </div>
@@ -22,10 +21,8 @@
     ID_NAME,
     SCROLL_WIDTH,
     DEFAULT_TABLE_HEIGHT,
-    DEFAULT_TABLE_WIDTH,
     DEFAULT_TABLE_HEADER_HEIGHT,
     DEFAULT_TABLE_RECORD_HEIGHT,
-    TABLE_TYPE_COMMON,
   } from './tableHelper/constant';
   import {getRandomStr} from './tableHelper/tableUtil';
 
@@ -33,12 +30,6 @@
     components: {SingleTable},
     name: 'VueVirtualScrollTable',
     props: {
-      renderType: {
-        type: String,
-        default () {
-          return TABLE_TYPE_COMMON;
-        },
-      },
       columnsConfig: {
         type: Array,
         default () {
@@ -86,13 +77,7 @@
         },
       },
 
-      tableWidth: {
-        type: Number,
-        default: function ()
-        {
-          return DEFAULT_TABLE_WIDTH;//- DEFAULT_TABLE_HEADER_HEIGHT,
-        },
-      },
+      tableWidth: Number,
     },
     mounted () {
       this.handleResize();

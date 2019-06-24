@@ -1,13 +1,15 @@
 <template>
   <div>
-    <vue-virtual-scroll-table
-      :columns-config='tableTitle'
-      :data='result'
-      :table-width="1000"
-      render-type='VIRTUAL'
-      record-key='_id'
-      header-class='header-title__virtual'
-    ></vue-virtual-scroll-table>
+    <!--<vue-virtual-scroll-table :columns-config='tableTitle'
+                              :data='result'
+                              :table-width="1000"
+                              render-type='VIRTUAL'
+                              record-key='_id'
+                              header-class='header-title__virtual'></vue-virtual-scroll-table>-->
+    <vue-virtual-scroll-table :columns-config='tableTitle'
+                              :data='result'
+                              record-key='_id'
+                              header-class='header-title__virtual'></vue-virtual-scroll-table>
     <div>
       <h2>ddd</h2>
     </div>
@@ -204,7 +206,7 @@
         }
         return a ? parseFloat(a) : null;
       },
-    },
+    }
   };
 </script>
 
