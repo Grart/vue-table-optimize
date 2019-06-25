@@ -1,11 +1,11 @@
 <template>
   <article class='c-table-wrapper'
-           :style='{width: getHeaderWidth,position:"relative"}'>
+           :style='getTableWrapperStyle'>
     <section class='c-table-wrapper__header-wrapper'
              :class='headerClass'
              :style='{width: tableWidth+"px"}'
              ref='tableHeader'>
-      <div :style='{width: getHeaderWidth,height:"42px","overflow-x":"hidden","overflow-y":"hidden"}'>
+      <div :style='getHeaderStyle'>
         <table-header v-if="bodyVisable"
                       :columns-config='columnsConfig'
                       :height='headerHeight'
@@ -118,7 +118,8 @@
           newItems: [],
           replaceItemsIndex: 0
         },
-        bodyVisable: false
+        bodyVisable: false,
+        bodyWidth: 0
       };
     },
     computed: {
@@ -172,10 +173,25 @@
       {
         return this.data.length * this.recordHeight;
       },
-      getHeaderWidth: function ()
+
+      getTableWrapperStyle: function ()
+      {
+        //最外层嵌套元素样式
+        return {
+          width: this.tableWidth ? `${this.tableWidth}px` : (this.bodyVisable ? `${this.bodyWidth}px` : 'inherit'),
+          position: "relative"
+        };
+      },
+
+      getHeaderStyle: function ()
       {
         console.log(this.virtualScrollData.offsetWidth);
-        return this.tableWidth ? `${this.tableWidth}px` : 'inherit';
+        return {
+          width: (this.tableWidth ? `${this.tableWidth}px` : (this.bodyVisable ? `${this.bodyWidth - 18}px` : 'inherit')),
+          "overflow-x": "hidden",
+          "overflow-y": "hidden"
+        }
+
         //return `${(this.virtualScrollData ? this.virtualScrollData.offsetWidth : this.tableWidth)}px`;
       },
       getHeaderColumnWidth: function ()
@@ -227,8 +243,31 @@
     mounted: function ()
     {
       this.bodyVisable = !!this.$refs.tableHeader;
-      console.log(this.$refs.tableHeader.offsetWidth)
-      console.log(this.$refs.tableHeader.clientWidth);
+      this.bodyWidth = this.$refs.tableHeader.clientWidth;
+      let _getBodyWidth = this.getBodyWidth;
+      let _getUnFixedWidth = this.getUnFixedWidth;
+      if (this.bodyWidth > _getBodyWidth)
+      {
+        //如果长度超过设定宽度，调整列宽度
+        console.log(this.bodyWidth);
+        console.log(_getBodyWidth);
+        let _defWidth = this.bodyWidth - _getBodyWidth;
+        console.log(_defWidth);
+        for (let _c = 0; _c < this.columnsConfig.length; _c++)
+        {
+          let _col = this.columnsConfig[_c];
+          if (_col.fixed != 'right' && _col.fixed != 'left')
+          {
+            let _w = parseInt(_col.cWidth ? _col.cWidth.replace('px', '') : _col.width);
+            _col.width = parseInt(_w + _w / _getUnFixedWidth * _defWidth);
+            _col.cWidth = `${_col.width}px`;
+          }
+        }
+        Vue.set(this.columnsConfig, this.columnsConfig);
+      }
+ 
+      //console.log(this.$refs.tableHeader.offsetWidth);
+      //console.log(this.$refs.tableHeader.clientWidth);
     }
   };
 </script>
@@ -268,6 +307,8 @@
     width: inherit;
     overflow: hidden;
     font-size: 12px;
+    border: 0px solid #dddddd;
+    border-right-width: 1px;
   }
 
   .c-table-wrapper__header-wrapper {

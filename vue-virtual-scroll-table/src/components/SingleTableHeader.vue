@@ -1,5 +1,6 @@
 <template>
-  <ul class='c-table-header__record' :style='getHeaderStyle'>
+  <ul class='c-table-header__record'
+      :style='getHeaderStyle'>
     <li class='c-table-header-column'
         v-for='(column, index) in columnsConfig'
         :key='column[cIdKey]'
