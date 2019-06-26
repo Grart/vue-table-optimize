@@ -2,19 +2,8 @@
   <article class='c-table-wrapper'
            ref='tableHeader'
            :style='getTableWrapperStyle'>
-    <!--<section class='c-table-wrapper__header-wrapper'
-           :class='headerClass'
-           :style='{width: tableWidth+"px"}'
-           ref='tableHeader'>
-    <div :style='getHeaderStyle'>
-      <table-header v-if="bodyVisable"
-                    :columns-config='columnsConfig'
-                    :height='headerHeight'
-                    :virtual-scroll-data="virtualScrollData">
-      </table-header>
-    </div>
-  </section>-->
 
+    <!--表格非固定列(表头)-->
     <table-header v-if="bodyVisable"
                   :header-class='headerClass'
                   :columns-config='getUnFixedColumnsConfig'
