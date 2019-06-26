@@ -33,7 +33,7 @@
 
     <!--表格左固定列-->
     <virtual-scroll-table-fixed :fixedStyle="getFixedLeftStyle"
-                                :table-fiexed-class="'c-table-fiexed-left'"
+                                :table-fiexed-class="getFixedLeftClass"
                                 :headerClass="headerClass"
                                 :virtual-items='virtualItems'
                                 :virtual-scroll-data="virtualScrollData"
@@ -48,7 +48,7 @@
 
     <!--表格右固定列-->
     <virtual-scroll-table-fixed :fixedStyle="getFixedRightStyle"
-                                :table-fiexed-class="'c-table-fiexed-right'"
+                                :table-fiexed-class="getFixedRightClass"
                                 :headerClass="headerClass"
                                 :virtual-items='virtualItems'
                                 :virtual-scroll-data="virtualScrollData"
@@ -207,6 +207,10 @@
       {
         return this.bodyHeight + this.headerHeight;
       },
+      getFixedRightClass: function ()
+      {
+        return this.hiddenVerticalScroll ? '' : 'c-table-fiexed-right';
+      },
       getFixedRightStyle: function ()
       {
         let _height = this.getTableHeight;
@@ -226,14 +230,24 @@
           'box-sizing': 'order-box'
         };
       },
+      getFixedLeftClass: function ()
+      {
+        return this.hiddenVerticalScroll ? '' : 'c-table-fiexed-left';
+      },
       getFixedLeftStyle: function ()
       {
-        let _height = this.getTableHeight;
-        if (!this.hiddenVerticalScroll)
+        let _height = 0;
+        if (this.hiddenVerticalScroll)
         {
-          _height = _height - this.virtualScrollData.scrollbarWidth + 2;
+          //为了显示左冻结列，右方的表格线条
+          _height = this.data.length * this.recordHeight;
+        }
+        else
+        {
+          _height = this.getTableHeight - this.virtualScrollData.scrollbarWidth + 2;
         }
         return {
+          'border-right': this.hiddenVerticalScroll ? '1px solid #dddddd' : '',
           top: `${0}px`,
           left: `${1}px`,
           width: `${this.getFixedLeftWidth}px`,
