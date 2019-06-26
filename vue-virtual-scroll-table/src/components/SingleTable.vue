@@ -1,24 +1,37 @@
 <template>
   <article class='c-table-wrapper'
+           ref='tableHeader'
            :style='getTableWrapperStyle'>
-    <section class='c-table-wrapper__header-wrapper'
-             :class='headerClass'
-             :style='{width: tableWidth+"px"}'
-             ref='tableHeader'>
-      <div :style='getHeaderStyle'>
-        <table-header v-if="bodyVisable"
-                      :columns-config='columnsConfig'
-                      :height='headerHeight'
-                      :virtual-scroll-data="virtualScrollData">
-        </table-header>
-      </div>
-    </section>
+    <!--<section class='c-table-wrapper__header-wrapper'
+           :class='headerClass'
+           :style='{width: tableWidth+"px"}'
+           ref='tableHeader'>
+    <div :style='getHeaderStyle'>
+      <table-header v-if="bodyVisable"
+                    :columns-config='columnsConfig'
+                    :height='headerHeight'
+                    :virtual-scroll-data="virtualScrollData">
+      </table-header>
+    </div>
+  </section>-->
+
+    <table-header v-if="bodyVisable"
+                  :header-class='headerClass'
+                  :columns-config='getUnFixedColumnsConfig'
+                  :height='headerHeight'
+                  :un-fixed-width="getUnFixedWidth"
+                  :fixed-left-width="getFixedLeftWidth"
+                  :fixed-right-width="getFixedRightWidth"
+                  :viewport-width='tableWidth'
+                  :virtual-scroll-data="virtualScrollData">
+    </table-header>
+
     <!--表格非固定列-->
     <virtual-scroll-table-body v-if="bodyVisable"
                                :data='data'
                                :record-key='recordKey'
-                               :columns-config='getColumnsConfig'
-                               :body-width="getUnFixedWidth"
+                               :columns-config='getUnFixedColumnsConfig'
+                               :un-fixed-width="getUnFixedWidth"
                                :fixed-left-width="getFixedLeftWidth"
                                :fixed-right-width="getFixedRightWidth"
                                :item-height='recordHeight'
@@ -123,7 +136,7 @@
       };
     },
     computed: {
-      getColumnsConfig: function ()
+      getUnFixedColumnsConfig: function ()
       {
         if (!this.columnsConfig)
         {
@@ -161,13 +174,13 @@
       {
         return getColumnsWidth(this.getFixedRightColumnsConfig);
       },
-      getBodyWidth: function ()
-      {
-        return getColumnsWidth(this.columnsConfig);
-      },
       getUnFixedWidth: function ()
       {
-        return getColumnsWidth(this.getColumnsConfig);
+        return getColumnsWidth(this.getUnFixedColumnsConfig);
+      },
+      getAllColumnsWidth: function ()
+      {
+        return getColumnsWidth(this.columnsConfig);
       },
       getBodyHeight: function ()
       {
@@ -185,6 +198,7 @@
 
       getHeaderStyle: function ()
       {
+        let _totalWidth = this.getUnFixedWidth + this.getFixedLeftWidth + this.getFixedRightWidth;
         console.log(this.virtualScrollData.offsetWidth);
         return {
           width: (this.tableWidth ? `${this.tableWidth}px` : (this.bodyVisable ? `${this.bodyWidth - 18}px` : 'inherit')),
@@ -244,14 +258,14 @@
     {
       this.bodyVisable = !!this.$refs.tableHeader;
       this.bodyWidth = this.$refs.tableHeader.clientWidth;
-      let _getBodyWidth = this.getBodyWidth;
+      let _getAllColumnsWidth = this.getAllColumnsWidth;
       let _getUnFixedWidth = this.getUnFixedWidth;
-      if (this.bodyWidth > _getBodyWidth)
+      if (this.bodyWidth > _getAllColumnsWidth)
       {
         //如果长度超过设定宽度，调整列宽度
         console.log(this.bodyWidth);
-        console.log(_getBodyWidth);
-        let _defWidth = this.bodyWidth - _getBodyWidth;
+        let _defWidth = this.bodyWidth - _getAllColumnsWidth;
+        let _lessWidth = _defWidth;
         console.log(_defWidth);
         for (let _c = 0; _c < this.columnsConfig.length; _c++)
         {
@@ -259,11 +273,16 @@
           if (_col.fixed != 'right' && _col.fixed != 'left')
           {
             let _w = parseInt(_col.cWidth ? _col.cWidth.replace('px', '') : _col.width);
-            _col.width = parseInt(_w + _w / _getUnFixedWidth * _defWidth);
+            let _w2 = parseInt( _w / _getUnFixedWidth * _defWidth);
+            console.log(_w2);
+            _col.width = _lessWidth > _w2 ? (_w + _w2) : _lessWidth;
+            _lessWidth -= _w2;
             _col.cWidth = `${_col.width}px`;
           }
         }
-        Vue.set(this.columnsConfig, this.columnsConfig);
+        console.log(_getAllColumnsWidth);
+        console.log(getColumnsWidth(this.columnsConfig));
+        //Vue.set(this.columnsConfig, this.columnsConfig);
       }
  
       //console.log(this.$refs.tableHeader.offsetWidth);

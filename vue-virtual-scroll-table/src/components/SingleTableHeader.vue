@@ -1,18 +1,27 @@
 <template>
-  <ul class='c-table-header__record'
-      :style='getHeaderStyle'>
-    <li class='c-table-header-column'
-        v-for='(column, index) in columnsConfig'
-        :key='column[cIdKey]'
-        :columnKey='column[cIdKey]'
-        :title='column.title'
-        :style='getColumnStyle(column)'>
-      <div class='c-table-header-column__container'>
-        <span v-if='!column.renderHeader'>{{column.title}}</span>
-        <render-header v-else :render='column.renderHeader' :column='column' :index='index'></render-header>
+  <section class='c-table-wrapper__header-wrapper'
+           :class='headerClass'>
+    <div :style='{width:(unFixedWidth+fixedLeftWidth + fixedRightWidth)+"px"}'>
+
+      <div :style='getHeaderWrapperStyle'>
+        <ul class='c-table-header__record'
+            :style='getHeaderStyle'>
+          <li class='c-table-header-column'
+              v-for='(column, index) in columnsConfig'
+              :key='column[cIdKey]'
+              :columnKey='column[cIdKey]'
+              :title='column.title'
+              :style='getColumnStyle(column)'>
+            <div class='c-table-header-column__container'>
+              <span v-if='!column.renderHeader'>{{column.title}}</span>
+              <render-header v-else :render='column.renderHeader' :column='column' :index='index'></render-header>
+            </div>
+          </li>
+        </ul>
       </div>
-    </li>
-  </ul>
+      </div>
+</section>
+
 </template>
 
 <script>
@@ -23,6 +32,10 @@
     name: 'SingleTableHeader',
     components: {RenderHeader},
     props: {
+      fixedLeftWidth: Number,
+      fixedRightWidth: Number,
+      unFixedWidth: Number,
+      viewportWidth: Number,
       columnsConfig: Array,
       height: Number,
       virtualScrollData: {
@@ -31,7 +44,11 @@
           scrollTop: 0,
           scrollLeft: 0
         }
-      }
+      },
+      headerClass: {
+        type: String,
+        default: 'c-table-header-default'
+      },
     },
     data () {
       return {
@@ -54,6 +71,16 @@
           transform: _translateX,
           height: `${this.height}px`,
           width: `${_bodyWidht}px`
+        };
+      },
+      getHeaderWrapperStyle: function ()
+      {
+        return {
+          'margin-left': `${this.fixedLeftWidth}px`,//左右固定的那些列是不显示的
+          'margin-right': `${this.fixedRightWidth}px`,
+          width: `${this.unFixedWidth}px`,//表体宽度
+          position: 'relative',
+          //"border-bottom": this.renderData.length > 0 ? "1px solid #dddddd" : ""
         };
       },
     },

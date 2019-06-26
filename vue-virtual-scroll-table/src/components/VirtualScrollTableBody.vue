@@ -4,7 +4,7 @@
            @scroll.passive='onVirtualScroll'
            :style='{height: getBodyHeight,width:getBodyWidth}'>
     <!--用总宽度撑出正确的横向滚动条-->
-    <div :style='{height: getBodyHeight,width:(bodyWidth+fixedLeftWidth + fixedRightWidth)+"px"}'>
+    <div :style='{height: getBodyHeight,width:(unFixedWidth+fixedLeftWidth + fixedRightWidth)+"px"}'>
 
       <div :style='getBodyWrapperStyle'>
         <div class='c-table-body-container c-table-body-container__virtual'
@@ -47,7 +47,7 @@
       recordKey: String,
       fixedLeftWidth: Number,
       fixedRightWidth: Number,
-      bodyWidth: Number,
+      unFixedWidth: Number,
       itemHeight: Number,
       viewportHeight: Number,
       viewportWidth: Number,
@@ -101,7 +101,7 @@
           'margin-left': `${this.fixedLeftWidth}px`,//左右固定的那些列是不显示的
           'margin-right': `${this.fixedRightWidth}px`,
           height: `${this.data.length * this.itemHeight}px`,
-          width: `${this.bodyWidth}px`,//表体宽度
+          width: `${this.unFixedWidth}px`,//表体宽度
           position: 'relative',
           //"border-bottom": this.renderData.length > 0 ? "1px solid #dddddd" : ""
         };
