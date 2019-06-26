@@ -17,6 +17,7 @@
 
     <!--表格非固定列-->
     <virtual-scroll-table-body v-if="bodyVisable"
+                               :hidden-vertical-scroll="hiddenVerticalScroll"
                                :data='data'
                                :record-key='recordKey'
                                :columns-config='getUnFixedColumnsConfig'
@@ -121,6 +122,7 @@
           replaceItemsIndex: 0
         },
         bodyVisable: false,
+        hiddenVerticalScroll: false,
         bodyWidth: 0
       };
     },
@@ -201,13 +203,22 @@
       {
         return `${(this.virtualScrollData ? this.virtualScrollData.offsetWidth : this.tableWidth) - this.virtualScrollData.scrollbarWidth - 4}px`;
       },
+      getTableHeight: function ()
+      {
+        return this.bodyHeight + this.headerHeight;
+      },
       getFixedRightStyle: function ()
       {
+        let _height = this.getTableHeight;
+        if (!this.hiddenVerticalScroll)
+        {
+          _height = _height - this.virtualScrollData.scrollbarWidth + 2;
+        }
         return {
           top: `${0}px`,
           right: `${this.virtualScrollData.scrollbarWidth + 1}px`,
           width: `${this.getFixedRightWidth}px`,
-          height: `${this.bodyHeight + this.headerHeight - this.virtualScrollData.scrollbarWidth + 2}px`,
+          height: `${_height}px`,
           position: 'absolute',//顶层要用position: relative;
           'background-color': 'ghostwhite',
           "overflow-x": "hidden",
@@ -217,11 +228,16 @@
       },
       getFixedLeftStyle: function ()
       {
+        let _height = this.getTableHeight;
+        if (!this.hiddenVerticalScroll)
+        {
+          _height = _height - this.virtualScrollData.scrollbarWidth + 2;
+        }
         return {
           top: `${0}px`,
           left: `${1}px`,
           width: `${this.getFixedLeftWidth}px`,
-          height: `${this.bodyHeight + this.headerHeight - this.virtualScrollData.scrollbarWidth + 2}px`,
+          height: `${_height}px`,
           position: 'absolute',//顶层要用position: relative;
           'background-color': 'ghostwhite',
           "overflow-x": "hidden",
@@ -245,11 +261,12 @@
     },
     mounted: function ()
     {
-      this.bodyVisable = !!this.$refs.tableHeader;
       this.bodyWidth = this.$refs.tableHeader.clientWidth;
       let _getAllColumnsWidth = this.getAllColumnsWidth;
       let _getUnFixedWidth = this.getUnFixedWidth;
-      if (this.bodyWidth > _getAllColumnsWidth)
+      this.hiddenVerticalScroll = (this.bodyWidth > _getAllColumnsWidth);
+      console.log(this.hiddenVerticalScroll);
+      if (this.hiddenVerticalScroll)
       {
         //如果长度超过设定宽度，调整列宽度
         console.log(this.bodyWidth);
@@ -276,6 +293,8 @@
  
       //console.log(this.$refs.tableHeader.offsetWidth);
       //console.log(this.$refs.tableHeader.clientWidth);
+
+      this.bodyVisable = !!this.$refs.tableHeader;
     }
   };
 </script>
@@ -329,10 +348,8 @@
 
   .c-table-wrapper__body-wrapper {
     overflow-y: scroll;
-    overflow-x: scroll;
     /*width: 100%;*/
     border: 1px solid #dddddd;
-    
   }
 
   .c-table-wrapper__header-wrapper,

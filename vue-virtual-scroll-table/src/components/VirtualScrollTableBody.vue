@@ -2,9 +2,9 @@
   <section class='c-table-wrapper__body-wrapper c-table-body-wrapper__virtual'
            ref='virtualScrollBody'
            @scroll.passive='onVirtualScroll'
-           :style='{height: getBodyHeight,width:getBodyWidth}'>
+           :style='getTableWrapperStyle'>
     <!--用总宽度撑出正确的横向滚动条-->
-    <div :style='{height: getBodyHeight,width:(unFixedWidth+fixedLeftWidth + fixedRightWidth)+"px"}'>
+    <div :style='{width:(unFixedWidth+fixedLeftWidth + fixedRightWidth)+"px"}'>
 
       <div :style='getBodyWrapperStyle'>
         <div class='c-table-body-container c-table-body-container__virtual'
@@ -42,6 +42,7 @@
     name: 'VirtualScrollTableBody',
     components: {RenderBody},
     props: {
+      hiddenVerticalScroll: Boolean,
       columnsConfig: Array,
       data: Array,
       recordKey: String,
@@ -84,16 +85,18 @@
       };
     },
     computed: {
+      getTableWrapperStyle: function ()
+      {
+        console.log(this.hiddenVerticalScroll);
+        return {
+          height: `${this.viewportHeight}px`,
+          width: `${this.viewportWidth}px`,
+          'overflow-x': this.hiddenVerticalScroll ? 'hidden' : 'scroll'//hidden
+          
+        };
+      },
       getRecordHeight: function () {
         return `${this.itemHeight}px`;
-      },
-      getBodyHeight: function ()
-      {
-        return `${this.viewportHeight}px`;
-      },
-      getBodyWidth: function ()
-      {
-        return `${this.viewportWidth}px`;
       },
       getBodyWrapperStyle: function ()
       {
@@ -212,6 +215,7 @@
       },
       onVirtualScroll(e)
       {
+        console.log(this.hiddenVerticalScroll);
         window.requestAnimationFrame(this.refreshRenderData);
       },
     },
