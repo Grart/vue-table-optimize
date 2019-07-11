@@ -1,417 +1,408 @@
 <template>
-  <article class='c-table-wrapper'
-           ref='tableHeader'
-           :style='getTableWrapperStyle'>
+    <article class='c-table-wrapper'
+             ref='tableHeader'
+             :style='getTableWrapperStyle'>
 
-    <!--表格非固定列(表头)-->
-    <table-header v-if="bodyVisable"
-                  :header-class='headerClass'
-                  :columns-config='getUnFixedColumnsConfig'
-                  :height='headerHeight'
-                  :un-fixed-width="getUnFixedWidth"
-                  :fixed-left-width="getFixedLeftWidth"
-                  :fixed-right-width="getFixedRightWidth"
-                  :viewport-width='tableWidth'
-                  :virtual-scroll-data="virtualScrollData">
-    </table-header>
+        <!--表格非固定列(表头)-->
+        <table-header v-if="bodyVisable"
+                      :header-class='headerClass'
+                      :columns-config='getUnFixedColumnsConfig'
+                      :height='headerHeight'
+                      :un-fixed-width="getUnFixedWidth"
+                      :fixed-left-width="getFixedLeftWidth"
+                      :fixed-right-width="getFixedRightWidth"
+                      :viewport-width='tableWidth'
+                      :scroll-syncl-data="scrollSynclData">
+        </table-header>
 
-    <!--表格非固定列-->
-    <virtual-scroll-table-body v-if="bodyVisable"
-                               :hidden-vertical-scroll="hiddenVerticalScroll"
-                               :data='data'
-                               :record-key='recordKey'
-                               :columns-config='getUnFixedColumnsConfig'
-                               :un-fixed-width="getUnFixedWidth"
-                               :fixed-left-width="getFixedLeftWidth"
-                               :fixed-right-width="getFixedRightWidth"
-                               :item-height='recordHeight'
-                               :viewport-height='bodyHeight'
-                               :viewport-width='tableWidth'
-                               :virtual-scroll-data="virtualScrollData"
-                               @on-refresh-virtual-items='onRefreshVirtualItems'>
-    </virtual-scroll-table-body>
+        <!--表格非固定列-->
+        <virtual-scroll-table-body v-if="bodyVisable"
+                                   :hidden-vertical-scroll="hiddenVerticalScroll"
+                                   :data='data'
+                                   :record-key='recordKey'
+                                   :columns-config='getUnFixedColumnsConfig'
+                                   :un-fixed-width="getUnFixedWidth"
+                                   :fixed-left-width="getFixedLeftWidth"
+                                   :fixed-right-width="getFixedRightWidth"
+                                   :item-height='recordHeight'
+                                   :viewport-height='bodyHeight'
+                                   :viewport-width='tableWidth'
+                                   :scroll-syncl-data="scrollSynclData">
+        </virtual-scroll-table-body>
 
-    <!--表格左固定列-->
-    <virtual-scroll-table-fixed :fixedStyle="getFixedLeftStyle"
-                                :table-fiexed-class="getFixedLeftClass"
-                                :headerClass="headerClass"
-                                :virtual-items='virtualItems'
-                                :virtual-scroll-data="virtualScrollData"
-                                :record-key='recordKey'
-                                :columns-config='getFixedLeftColumnsConfig'
-                                :header-height='headerHeight'
-                                :item-height='recordHeight'
-                                :body-height='getBodyHeight'
-                                :fixed-height='bodyHeight'
-                                :fixed-width='getFixedLeftWidth'>
-    </virtual-scroll-table-fixed>
+        <!--表格左固定列-->
+        <virtual-scroll-table-fixed :fixedStyle="getFixedLeftStyle"
+                                    :table-fiexed-class="getFixedLeftClass"
+                                    :headerClass="headerClass"
+                                    :virtual-items='scrollSynclData.virtualItems'
+                                    :scroll-syncl-data="scrollSynclData"
+                                    :record-key='recordKey'
+                                    :columns-config='getFixedLeftColumnsConfig'
+                                    :header-height='headerHeight'
+                                    :item-height='recordHeight'
+                                    :body-height='getBodyHeight'
+                                    :fixed-height='bodyHeight'
+                                    :fixed-width='getFixedLeftWidth'>
+        </virtual-scroll-table-fixed>
 
-    <!--表格右固定列-->
-    <virtual-scroll-table-fixed :fixedStyle="getFixedRightStyle"
-                                :table-fiexed-class="getFixedRightClass"
-                                :headerClass="headerClass"
-                                :virtual-items='virtualItems'
-                                :virtual-scroll-data="virtualScrollData"
-                                :record-key='recordKey'
-                                :columns-config='getFixedRightColumnsConfig'
-                                :header-height='headerHeight'
-                                :item-height='recordHeight'
-                                :body-height='getBodyHeight'
-                                :fixed-height='bodyHeight'
-                                :fixed-width='getFixedRightWidth'>
-    </virtual-scroll-table-fixed>
+        <!--表格右固定列-->
+        <virtual-scroll-table-fixed :fixedStyle="getFixedRightStyle"
+                                    :table-fiexed-class="getFixedRightClass"
+                                    :headerClass="headerClass"
+                                    :virtual-items='scrollSynclData.virtualItems'
+                                    :scroll-syncl-data="scrollSynclData"
+                                    :record-key='recordKey'
+                                    :columns-config='getFixedRightColumnsConfig'
+                                    :header-height='headerHeight'
+                                    :item-height='recordHeight'
+                                    :body-height='getBodyHeight'
+                                    :fixed-height='bodyHeight'
+                                    :fixed-width='getFixedRightWidth'>
+        </virtual-scroll-table-fixed>
 
-  </article>
+    </article>
 </template>
 
-<script>
-  import TableHeader from './SingleTableHeader';
-  import TableBody from './SingleTableBody';
-  import RequestAnimationFrameTableBody from './RequestAnimationFrameTableBody';
-  import VirtualScrollTableBody from './VirtualScrollTableBody';
-  import VirtualScrollTableFixed from './VirtualScrollTableFixed';
-  /**
-   * 计算列宽
-   */
-  function getColumnsWidth(columnsConfig)
-  {
-    let _bodyWidth = 0;
-    let _cfg = columnsConfig;
-    for (let _c = 0; _c < _cfg.length; _c++)
+<script lang="ts">
+    import TableHeader from './SingleTableHeader';
+    import TableBody from './SingleTableBody';
+    import RequestAnimationFrameTableBody from './RequestAnimationFrameTableBody';
+    import VirtualScrollTableBody from './VirtualScrollTableBody';
+    import VirtualScrollTableFixed from './VirtualScrollTableFixed';
+    /**
+     * 计算列宽
+     */
+    function getColumnsWidth(columnsConfig)
     {
-      let _col = _cfg[_c];
-      _bodyWidth += parseInt(_col.cWidth ? _col.cWidth.replace('px', '') : _col.width);
+        let _bodyWidth = 0;
+        let _cfg = columnsConfig;
+        for (let _c = 0; _c < _cfg.length; _c++)
+        {
+            let _col = _cfg[_c];
+            _bodyWidth += parseInt(_col.cWidth ? _col.cWidth.replace('px', '') : _col.width);
+        }
+        return _bodyWidth;
     }
-    return _bodyWidth;
-  }
 
-  export default {
-    components: {
-      TableHeader,
-      TableBody,
-      RequestAnimationFrameTableBody,
-      VirtualScrollTableBody,
-      VirtualScrollTableFixed,
-    },
-    name: 'SingleTable',
-    props: {
-      columnsConfig: Array,
-      data: Array,
-      recordKey: String,
-      headerHeight: Number,
-      bodyHeight: Number,
-      tableWidth: Number,
-      recordHeight: Number,
-      headerClass : {
-        type: String,
-        default: 'c-table-header-default'
-      },
-    },
-    data () {
-      return {
-        //滚动条同步对像,body通过这个对像将同步信息传给header
-        virtualScrollData: {
-          scrollTop: 0,
-          scrollLeft: 0,
-          scrollbarWidth: 16,
-          offsetWidth: 0
+    export default {
+        components: {
+            TableHeader,
+            TableBody,
+            RequestAnimationFrameTableBody,
+            VirtualScrollTableBody,
+            VirtualScrollTableFixed,
         },
-        virtualItems: {
-          renderData: [],
-          newItems: [],
-          replaceItemsIndex: 0
+        name: 'SingleTable',
+        props: {
+            columnsConfig: Array,
+            data: Array,
+            recordKey: String,
+            headerHeight: Number,
+            bodyHeight: Number,
+            tableWidth: Number,
+            recordHeight: Number,
+            headerClass: {
+                type: String,
+                default: 'c-table-header__default'
+            },
         },
-        bodyVisable: false,
-        hiddenVerticalScroll: false,
-        bodyWidth: 0
-      };
-    },
-    computed: {
-      getUnFixedColumnsConfig: function ()
-      {
-        if (!this.columnsConfig)
+        data()
         {
-          return [];
-        }
-        return this.columnsConfig.filter(
-          m => m.fixed != 'right' && m.fixed != 'left'
-        );
-      },
-      getFixedLeftColumnsConfig: function ()
-      {
-        if (!this.columnsConfig)
-        {
-          return [];
-        }
-        return this.columnsConfig.filter(
-          m => m.fixed == 'left'
-        );
-      },
-      getFixedRightColumnsConfig: function ()
-      {
-        if (!this.columnsConfig)
-        {
-          return [];
-        }
-        return this.columnsConfig.filter(
-          m => m.fixed == 'right'
-        );
-      },
-      getFixedLeftWidth: function ()
-      {
-        return getColumnsWidth(this.getFixedLeftColumnsConfig);
-      },
-      getFixedRightWidth: function ()
-      {
-        return getColumnsWidth(this.getFixedRightColumnsConfig);
-      },
-      getUnFixedWidth: function ()
-      {
-        return getColumnsWidth(this.getUnFixedColumnsConfig);
-      },
-      getAllColumnsWidth: function ()
-      {
-        return getColumnsWidth(this.columnsConfig);
-      },
-      getBodyHeight: function ()
-      {
-        return this.data.length * this.recordHeight;
-      },
+            return {
+                //滚动条同步对像,body通过这个对像将同步信息传给header
+                scrollSynclData: {
+                    scrollTop: 0,
+                    scrollLeft: 0,
+                    scrollbarWidth: 16,
+                    offsetWidth: 0,
+                    focus_vkey: -1,
+                    virtualItems: {
+                        renderData: [],
+                        newItems: [],
+                        replaceItemsIndex: 0
+                    }
+                },
+                bodyVisable: false,
+                hiddenVerticalScroll: false,
+                bodyWidth: 0
+            };
+        },
+        computed: {
+            getUnFixedColumnsConfig: function ()
+            {
+                if (!this.columnsConfig)
+                {
+                    return [];
+                }
+                return this.columnsConfig.filter(
+                    m => m.fixed != 'right' && m.fixed != 'left'
+                );
+            },
+            getFixedLeftColumnsConfig: function ()
+            {
+                if (!this.columnsConfig)
+                {
+                    return [];
+                }
+                return this.columnsConfig.filter(
+                    m => m.fixed == 'left'
+                );
+            },
+            getFixedRightColumnsConfig: function ()
+            {
+                if (!this.columnsConfig)
+                {
+                    return [];
+                }
+                return this.columnsConfig.filter(
+                    m => m.fixed == 'right'
+                );
+            },
+            getFixedLeftWidth: function ()
+            {
+                return getColumnsWidth(this.getFixedLeftColumnsConfig);
+            },
+            getFixedRightWidth: function ()
+            {
+                return getColumnsWidth(this.getFixedRightColumnsConfig);
+            },
+            getUnFixedWidth: function ()
+            {
+                return getColumnsWidth(this.getUnFixedColumnsConfig);
+            },
+            getAllColumnsWidth: function ()
+            {
+                return getColumnsWidth(this.columnsConfig);
+            },
+            getBodyHeight: function ()
+            {
+                return this.data.length * this.recordHeight;
+            },
 
-      getTableWrapperStyle: function ()
-      {
-        //最外层嵌套元素样式
-        return {
-          width: this.tableWidth ? `${this.tableWidth}px` : (this.bodyVisable ? `${this.bodyWidth}px` : 'inherit'),
-          position: "relative"
-        };
-      },
+            getTableWrapperStyle: function ()
+            {
+                //最外层嵌套元素样式
+                let _width = this.tableWidth ? this.tableWidth : (this.bodyVisable ? this.bodyWidth : 0);
+                return {
+                    width: 0 != _width ? `${_width}px` : 'inherit',
+                    position: "relative"
+                };
+            },
 
-      getHeaderStyle: function ()
-      {
-        let _totalWidth = this.getUnFixedWidth + this.getFixedLeftWidth + this.getFixedRightWidth;
-        console.log(this.virtualScrollData.offsetWidth);
-        return {
-          width: (this.tableWidth ? `${this.tableWidth}px` : (this.bodyVisable ? `${this.bodyWidth - 18}px` : 'inherit')),
-          "overflow-x": "hidden",
-          "overflow-y": "hidden"
-        }
+            getHeaderStyle: function ()
+            {
+                let _totalWidth = this.getUnFixedWidth + this.getFixedLeftWidth + this.getFixedRightWidth;
+                console.log(this.scrollSynclData.offsetWidth);
+                return {
+                    width: (this.tableWidth ? `${this.tableWidth}px` : (this.bodyVisable ? `${this.bodyWidth - 18}px` : 'inherit')),
+                    "overflow-x": "hidden",
+                    "overflow-y": "hidden"
+                }
 
-        //return `${(this.virtualScrollData ? this.virtualScrollData.offsetWidth : this.tableWidth)}px`;
-      },
-      getHeaderColumnWidth: function ()
-      {
-        return `${(this.virtualScrollData ? this.virtualScrollData.offsetWidth : this.tableWidth) - this.virtualScrollData.scrollbarWidth - 4}px`;
-      },
-      getTableHeight: function ()
-      {
-        return this.bodyHeight + this.headerHeight;
-      },
-      getFixedRightClass: function ()
-      {
-        return this.hiddenVerticalScroll ? '' : 'c-table-fiexed-right';
-      },
-      getFixedRightStyle: function ()
-      {
-        let _height = this.getTableHeight;
-        if (!this.hiddenVerticalScroll)
+                //return `${(this.scrollSynclData ? this.scrollSynclData.offsetWidth : this.tableWidth)}px`;
+            },
+            getHeaderColumnWidth: function ()
+            {
+                return `${(this.scrollSynclData ? this.scrollSynclData.offsetWidth : this.tableWidth) - this.scrollSynclData.scrollbarWidth - 4}px`;
+            },
+            getTableHeight: function ()
+            {
+                return this.bodyHeight + this.headerHeight;
+            },
+            getFixedRightClass: function ()
+            {
+                return this.hiddenVerticalScroll ? '' : 'c-table-fiexed-right';
+            },
+            getFixedRightStyle: function ()
+            {
+                let _height = this.getTableHeight;
+                if (!this.hiddenVerticalScroll)
+                {
+                    _height = _height - this.scrollSynclData.scrollbarWidth + 2;
+                }
+                return {
+                    top: `${0}px`,
+                    right: `${this.scrollSynclData.scrollbarWidth + 1}px`,
+                    width: `${this.getFixedRightWidth}px`,
+                    height: `${_height}px`,
+                    position: 'absolute',//顶层要用position: relative;
+                    'background-color': 'ghostwhite',
+                    "overflow-x": "hidden",
+                    "overflow-y": "hidden",
+                    'box-sizing': 'order-box'
+                };
+            },
+            getFixedLeftClass: function ()
+            {
+                return this.hiddenVerticalScroll ? '' : 'c-table-fiexed-left';
+            },
+            getFixedLeftStyle: function ()
+            {
+                let _height = 0;
+                if (this.hiddenVerticalScroll)
+                {
+                    //为了显示左冻结列，右方的表格线条
+                    _height = this.data.length * this.recordHeight;
+                }
+                else
+                {
+                    _height = this.getTableHeight - this.scrollSynclData.scrollbarWidth + 2;
+                }
+                return {
+                    'border-right': this.hiddenVerticalScroll ? '1px solid #dddddd' : '',
+                    top: `${0}px`,
+                    left: `${1}px`,
+                    width: `${this.getFixedLeftWidth}px`,
+                    height: `${_height}px`,
+                    position: 'absolute',//顶层要用position: relative;
+                    'background-color': 'ghostwhite',
+                    "overflow-x": "hidden",
+                    "overflow-y": "hidden",
+                    'box-sizing': 'order-box'
+                };
+            },
+            getFloatRightHeaderStyle: function ()
+            {
+                console.log(`${this.headerHeight}px`);
+                return {
+                    height: `${this.headerHeight}px`
+                };
+            }
+        },
+        methods: {
+        },
+        mounted: function ()
         {
-          _height = _height - this.virtualScrollData.scrollbarWidth + 2;
-        }
-        return {
-          top: `${0}px`,
-          right: `${this.virtualScrollData.scrollbarWidth + 1}px`,
-          width: `${this.getFixedRightWidth}px`,
-          height: `${_height}px`,
-          position: 'absolute',//顶层要用position: relative;
-          'background-color': 'ghostwhite',
-          "overflow-x": "hidden",
-          "overflow-y": "hidden",
-          'box-sizing': 'order-box'
-        };
-      },
-      getFixedLeftClass: function ()
-      {
-        return this.hiddenVerticalScroll ? '' : 'c-table-fiexed-left';
-      },
-      getFixedLeftStyle: function ()
-      {
-        let _height = 0;
-        if (this.hiddenVerticalScroll)
-        {
-          //为了显示左冻结列，右方的表格线条
-          _height = this.data.length * this.recordHeight;
-        }
-        else
-        {
-          _height = this.getTableHeight - this.virtualScrollData.scrollbarWidth + 2;
-        }
-        return {
-          'border-right': this.hiddenVerticalScroll ? '1px solid #dddddd' : '',
-          top: `${0}px`,
-          left: `${1}px`,
-          width: `${this.getFixedLeftWidth}px`,
-          height: `${_height}px`,
-          position: 'absolute',//顶层要用position: relative;
-          'background-color': 'ghostwhite',
-          "overflow-x": "hidden",
-          "overflow-y": "hidden",
-          'box-sizing': 'order-box'
-        };
-      },
-      getFloatRightHeaderStyle: function ()
-      {
-        console.log(`${this.headerHeight}px`);
-        return {
-          height: `${this.headerHeight}px`
-        };
-      }
-    },
-    methods: {
-      onRefreshVirtualItems: function (renderData)
-      {
-        this.virtualItems = { renderData };
-      }
-    },
-    mounted: function ()
-    {
-      this.bodyWidth = this.$refs.tableHeader.clientWidth;
-      let _getAllColumnsWidth = this.getAllColumnsWidth;
-      let _getUnFixedWidth = this.getUnFixedWidth;
-      this.hiddenVerticalScroll = (this.bodyWidth > _getAllColumnsWidth);
-      console.log(this.hiddenVerticalScroll);
-      if (this.hiddenVerticalScroll)
-      {
-        //如果长度超过设定宽度，调整列宽度
-        console.log(this.bodyWidth);
-        let _defWidth = this.bodyWidth - _getAllColumnsWidth;
-        let _lessWidth = _defWidth;
-        console.log(_defWidth);
-        for (let _c = 0; _c < this.columnsConfig.length; _c++)
-        {
-          let _col = this.columnsConfig[_c];
-          if (_col.fixed != 'right' && _col.fixed != 'left')
-          {
-            let _w = parseInt(_col.cWidth ? _col.cWidth.replace('px', '') : _col.width);
-            let _w2 = parseInt( _w / _getUnFixedWidth * _defWidth);
-            console.log(_w2);
-            _col.width = _lessWidth > _w2 ? (_w + _w2) : _lessWidth;
-            _lessWidth -= _w2;
-            _col.cWidth = `${_col.width}px`;
-          }
-        }
-        console.log(_getAllColumnsWidth);
-        console.log(getColumnsWidth(this.columnsConfig));
-        //Vue.set(this.columnsConfig, this.columnsConfig);
-      }
- 
-      //console.log(this.$refs.tableHeader.offsetWidth);
-      //console.log(this.$refs.tableHeader.clientWidth);
+            this.bodyWidth = this.$refs.tableHeader.clientWidth;
+            let _getAllColumnsWidth = this.getAllColumnsWidth;
+            let _getUnFixedWidth = this.getUnFixedWidth;
+            this.hiddenVerticalScroll = (this.bodyWidth > _getAllColumnsWidth);
+            console.log(this.hiddenVerticalScroll);
+            if (this.hiddenVerticalScroll)
+            {
+                //如果长度超过设定宽度，调整列宽度
+                console.log(this.bodyWidth);
+                let _defWidth = this.bodyWidth - _getAllColumnsWidth;
+                let _lessWidth = _defWidth;
+                console.log(_defWidth);
+                for (let _c = 0; _c < this.columnsConfig.length; _c++)
+                {
+                    let _col = this.columnsConfig[_c];
+                    if (_col.fixed != 'right' && _col.fixed != 'left')
+                    {
+                        let _w = parseInt(_col.cWidth ? _col.cWidth.replace('px', '') : _col.width);
+                        let _w2 = parseInt(_w / _getUnFixedWidth * _defWidth);
+                        console.log(_w2);
+                        _col.width = _lessWidth > _w2 ? (_w + _w2) : _lessWidth;
+                        _lessWidth -= _w2;
+                        _col.cWidth = `${_col.width}px`;
+                    }
+                }
+                console.log(_getAllColumnsWidth);
+                console.log(getColumnsWidth(this.columnsConfig));
+                //Vue.set(this.columnsConfig, this.columnsConfig);
+            }
 
-      this.bodyVisable = !!this.$refs.tableHeader;
-    }
-  };
+            //console.log(this.$refs.tableHeader.offsetWidth);
+            //console.log(this.$refs.tableHeader.clientWidth);
+
+            this.bodyVisable = !!this.$refs.tableHeader;
+        }
+    };
 </script>
 
 <style>
-  .c-table-header-default {
-    background-color: #f8f8f9;
-    color: #495060;
-    font-size: 14px;
-    font-weight: bold;
-  }
-  
-  .c-table-fiexed-right,
-  .c-table-fiexed-right:after,
-  .c-table-fiexed-right:before {
-    box-shadow: -2px 0 6px -2px rgba(0,0,0,.2);
-  }
 
-  .c-table-fiexed-left,
-  .c-table-fiexed-left:after,
-  .c-table-fiexed-left:before {
-    box-shadow: 2px 0 6px -2px rgba(0,0,0,.2);
-  }
+    .c-table-fiexed-right,
+    .c-table-fiexed-right:after,
+    .c-table-fiexed-right:before {
+        box-shadow: -2px 0 6px -2px rgba(0,0,0,.2);
+    }
 
-  ul {
-    padding-left: 0;
-    margin: 0;
-  }
+    .c-table-fiexed-left,
+    .c-table-fiexed-left:after,
+    .c-table-fiexed-left:before {
+        box-shadow: 2px 0 6px -2px rgba(0,0,0,.2);
+    }
 
-  ul > li {
-    padding-left: 0;
-    margin: 0;
-    list-style: none;
-  }
+    ul {
+        padding-left: 0;
+        margin: 0;
+    }
 
-  .c-table-wrapper {
-    width: inherit;
-    overflow: hidden;
-    font-size: 12px;
-    border: 0px solid #dddddd;
-    border-right-width: 1px;
-  }
+        ul > li {
+            padding-left: 0;
+            margin: 0;
+            list-style: none;
+        }
 
-  .c-table-wrapper__header-wrapper {
-    width: 100%;
-    border: 1px solid #dddddd;
-    border-bottom: 0;
-    /*隐藏超过表体宽度的列*/
-    overflow-x: hidden;
-  }
+    .c-table-wrapper {
+        width: inherit;
+        overflow: hidden;
+        font-size: 12px;
+        border: 0px solid #dddddd;
+        border-right-width: 1px;
+    }
 
-  .c-table-wrapper__body-wrapper {
-    overflow-y: scroll;
-    /*width: 100%;*/
-    border: 1px solid #dddddd;
-  }
+    .c-table-wrapper__header-wrapper {
+        width: 100%;
+        border: 1px solid #dddddd;
+        border-bottom: 0;
+        /*隐藏超过表体宽度的列*/
+        overflow-x: hidden;
+    }
 
-  .c-table-wrapper__header-wrapper,
-  .c-table-wrapper__body-wrapper {
-    display: flex;
-    flex-direction: column;
-  }
+    .c-table-wrapper__body-wrapper {
+        overflow-y: scroll;
+        /*width: 100%;*/
+        border: 1px solid #dddddd;
+    }
 
-  .c-table-header__record,
-  .c-table-body__record {
-    display: flex;
-  }
+    .c-table-wrapper__header-wrapper,
+    .c-table-wrapper__body-wrapper {
+        display: flex;
+        flex-direction: column;
+    }
 
-  .c-table-header__record {
-    padding-right: 0px;
-    /* padding-right: 17px; */
-  }
+    .c-table-header__record,
+    .c-table-body__record {
+        display: flex;
+    }
 
-  .c-table-header-column,
-  .c-table-body-column {
-    display: flex;
-    align-items: center;
-    border-right: 1px solid #dddddd;
-    padding-left: 6px;
-    overflow: hidden;
-    white-space: nowrap;
-    flex: 1 1 auto;
-  }
+    .c-table-header__record {
+        padding-right: 0px;
+        /* padding-right: 17px; */
+    }
 
-  .c-table-header-column__container,
-  .c-table-body-column__container {
-    text-overflow: ellipsis;
-    overflow: hidden;
-  }
+    .c-table-header-column,
+    .c-table-body-column {
+        display: flex;
+        align-items: center;
+        border-right: 1px solid #dddddd;
+        padding-left: 6px;
+        overflow: hidden;
+        white-space: nowrap;
+        flex: 1 1 auto;
+    }
 
-  .c-table-body__record {
-    border-bottom: 1px solid #dddddd;
-  }
+    .c-table-header-column__container,
+    .c-table-body-column__container {
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
 
-  .c-table-body-container:last-child .c-table-body__record {
-    /*border-bottom: 0;*/
-  }
+    .c-table-body__record {
+        border-bottom: 1px solid #dddddd;
+    }
 
-  .c-table-header__default {
-    background-color: #f8f8f9;
-    color: #297EA3;
-    font-weight: bold;
-    font-size: 14px;
-  }
+    .c-table-body-container:last-child .c-table-body__record {
+        /*border-bottom: 0;*/
+    }
 
+    .c-table-header__default {
+        background-color: #f8f8f9;
+        color: #495060;
+        font-size: 12px;
+        font-weight: 700;
+    }
 </style>
