@@ -18,8 +18,26 @@ function getColumnsWidth(columnsConfig)
 	{
 		let _col = _cfg[_c];
 		let _columnWidth = parseInt(_col.cWidth ? _col.cWidth.replace('px', '') : _col.width);
-		_bodyWidth += _columnWidth;
 		_col.cWidth = `${_columnWidth}px`;
+		_bodyWidth += _columnWidth;
+	}
+	return _bodyWidth;
+}
+function getColumnsDefaultWidth(
+	columnsConfig
+)
+{
+	let _bodyWidth = 0;
+	let _cfg = columnsConfig;
+	for (let _c = 0; _c < _cfg.length; _c++)
+	{
+		let _col = _cfg[_c];
+		if (!_col.defaultWidth)
+		{
+			_col.defaultWidth = parseInt(_col.cWidth ? _col.cWidth.replace('px', '') : _col.width);
+			_col.cWidth = `${_col.defaultWidth}px`;
+		}
+		_bodyWidth += _col.defaultWidth;
 	}
 	return _bodyWidth;
 }
@@ -406,38 +424,33 @@ export default {
 			_$this.bodyWidth = 0 == _$this.bodyWidth ? 0 : (_$this.bodyWidth - 5);
 
 			console.log(_$this.bodyWidth);
-			let _getAllColumnsWidth = _$this.getAllColumnsWidth;
+			let _getAllColumnsWidth = getColumnsDefaultWidth(_$this.columnsConfig);// _$this.getAllColumnsWidth;
 			let _getUnFixedWidth = _$this.getUnFixedWidth;
 			_$this.hiddenVerticalScroll = (_$this.bodyWidth > _getAllColumnsWidth);
-			console.log(_$this.hiddenVerticalScroll);
-			if (_$this.hiddenVerticalScroll)
+
+			let _defWidth = _$this.bodyWidth - _getAllColumnsWidth;
+			let _lessWidth = _defWidth;
+			for (let _c = 0; _c < _$this.columnsConfig.length; _c++)
 			{
-				//如果长度超过设定宽度，调整列宽度
-				console.log(_$this.bodyWidth);
-				console.log(_getAllColumnsWidth);
-				let _defWidth = _$this.bodyWidth - _getAllColumnsWidth;
-				let _lessWidth = _defWidth;
-				console.log(_defWidth);
-				for (let _c = 0; _c < _$this.columnsConfig.length; _c++)
+				let _col = _$this.columnsConfig[_c];
+				if (_col.fixed != 'right' && _col.fixed != 'left')
 				{
-					let _col = _$this.columnsConfig[_c];
-					if (_col.fixed != 'right' && _col.fixed != 'left')
+					if (_$this.hiddenVerticalScroll)
 					{
+						//如果长度超过设定宽度，调整列宽度
 						let _w = parseInt(_col.cWidth ? _col.cWidth.replace('px', '') : _col.width);
 						let _w2 = parseInt(_w / _getUnFixedWidth * _defWidth);
-						console.log(_w2);
 						_col.width = _w + (_lessWidth > _w2 ? _w2 : _lessWidth);
 						_lessWidth -= _w2;
 						_col.cWidth = `${_col.width}px`;
-						console.log(_col.cWidth);
+					}
+					else
+					{
+						_col.cWidth = `${_col.defaultWidth}px`;
 					}
 				}
-				console.log(getColumnsWidth(_$this.columnsConfig));
-				//Vue.set(_$this.columnsConfig, _$this.columnsConfig);
 			}
 
-			//console.log(_$this.$refs.tableHeader.offsetWidth);
-			//console.log(_$this.$refs.tableHeader.clientWidth);
 
 			_$this.bodyVisable = !!_$this.$refs.tableHeader;
 		},
