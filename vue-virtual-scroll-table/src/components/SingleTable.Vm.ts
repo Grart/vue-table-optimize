@@ -75,7 +75,7 @@ const SelectionComponent = {
 			},
 			[
 				h("span", {
-					staticClass: true == _$this.checked ? "iconfont icon-checkbox_on" : "iconfont icon-check-box-outline-bl",
+					staticClass: true == _$this.checked ? "iconfont icon-checkbox_on" : "iconfont icon-check-box-off",
 					staticStyle: {
 						'font-size': '18px',
 						'width': '40px',

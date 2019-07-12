@@ -1,0 +1,32 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" >
+<!--
+2013-9-30: Created.
+-->
+<svg>
+<metadata>
+Created by iconfont
+</metadata>
+<defs>
+
+<font id="iconfont" horiz-adv-x="1024" >
+  <font-face
+    font-family="iconfont"
+    font-weight="500"
+    font-stretch="normal"
+    units-per-em="1024"
+    ascent="896"
+    descent="-128"
+  />
+    <missing-glyph />
+    
+    <glyph glyph-name="checkboxoutlineblank" unicode="&#58939;" d="M810.666667 682.666667l0-597.333333L213.333333 85.333333 213.333333 682.666667 810.666667 682.666667M810.666667 768 213.333333 768C166.4 768 128 729.6 128 682.666667l0-597.333333c0-46.933333 38.4-85.333333 85.333333-85.333333l597.333333 0c46.933333 0 85.333333 38.4 85.333333 85.333333L896 682.666667C896 729.6 857.6 768 810.666667 768L810.666667 768z"  horiz-adv-x="1024" />
+
+    
+    <glyph glyph-name="baseline-check_box-px" unicode="&#58902;" d="M810.666667 768H213.333333a85.333333 85.333333 0 0 1-85.333333-85.333333v-597.333334a85.333333 85.333333 0 0 1 85.333333-85.333333h597.333334a85.333333 85.333333 0 0 1 85.333333 85.333333V682.666667a85.333333 85.333333 0 0 1-85.333333 85.333333z m-384-597.333333l-213.333334 213.333333 60.16 60.16L426.666667 291.413333l323.84 323.84L810.666667 554.666667l-384-384z"  horiz-adv-x="1024" />
+
+    
+
+
+  </font>
+</defs></svg>
