@@ -142,36 +142,40 @@ export default {
 			}
 			let _unCheckedCount = -1;
 			let _defaultChecked = false;
+			let _onToggleSelected = function (checked)
+			{
+				//console.log('onCheckedChange', checked);
+				for (let _key in _cellSelectionDict)
+				{
+					_cellSelectionDict[_key].checked = checked;
+				}
+				_defaultChecked = checked;
+				if (checked)
+				{
+					_unCheckedCount = 0;
+				}
+				let _selection = getSelectionData(
+					_cellSelectionDict,
+					_$this.data,
+					_defaultChecked
+				);
+
+				if (checked)
+				{
+					_$this.$emit('on-select-all', _selection);
+				} else
+				{
+					_$this.$emit('on-select-all-cancel', _selection);
+				}
+				_$this.$emit('on-selection-change', _selection);
+			};
+
 			let _toggleSelectObject = {
 				checked: false,
-				onCheckedChange: function (checked)
-				{
-					//console.log('onCheckedChange', checked);
-					for (let _key in _cellSelectionDict)
-					{
-						_cellSelectionDict[_key].checked = checked;
-					}
-					_defaultChecked = checked;
-					if (checked)
-					{
-						_unCheckedCount = 0;
-					}
-					let _selection = getSelectionData(
-						_cellSelectionDict,
-						_$this.data,
-						_defaultChecked
-					);
-			
-					if (checked)
-					{
-						_$this.$emit('on-select-all', _selection);
-					} else
-					{
-						_$this.$emit('on-select-all-cancel', _selection);
-					}
-					_$this.$emit('on-selection-change', _selection);
-				}
+				onCheckedChange: _onToggleSelected,
+				index: -1
 			};
+
 			let _cellSelectionDict = {};
 			let _onCellCheckedChange = function (checked, index)
 			{
@@ -184,23 +188,23 @@ export default {
 				{
 					_unCheckedCount--;
 				}
+				let _selection = getSelectionData(
+					_cellSelectionDict,
+					_$this.data,
+					_defaultChecked
+				);
+				_$this.$emit(checked ? 'on-select' : 'on-select-cancel',
+					_selection,
+					JSON.parse(JSON.stringify(_$this.data[index])
+					));
+				_$this.$emit('on-selection-change', _selection);
 
 				_$this.$nextTick(
 					() =>
 					{
 						//vue 有循环检测, 用这方法跳出循环
 						_toggleSelectObject.checked = (_unCheckedCount == 0);
-
-						let _selection = getSelectionData(
-							_cellSelectionDict,
-							_$this.data,
-							_defaultChecked
-						);
-						_$this.$emit(checked ? 'on-select' : 'on-select-cancel',
-							_selection,
-							JSON.parse(JSON.stringify(_$this.data[index])
-							));
-						_$this.$emit('on-selection-change', _selection);
+						console.log(_toggleSelectObject.checked);
 					}
 				);
 			};
@@ -212,6 +216,8 @@ export default {
 				fixed: 'left',
 				renderHeader: function (h, params)
 				{
+					let _column = params.column;
+					let _index = params.index;
 					console.log(params);
 					return h(
 						SelectionComponent,

@@ -10,7 +10,9 @@ export default {
       default: null,
     },
   },
-  render: (h, ctx) => {
+	render: (h, ctx) =>
+	{
+		console.log(ctx);
     const params = {
       row: ctx.props.row,
       index: ctx.props.index,
