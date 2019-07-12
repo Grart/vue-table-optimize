@@ -395,7 +395,7 @@ export default {
 		}
 	},
 	methods: {
-		handleResize()
+		tableResize()
 		{
 			let _$this = this;
 			_$this.bodyWidth = _$this.$refs.tableWrapper.clientWidth;//tableHeader
@@ -440,6 +440,17 @@ export default {
 			//console.log(_$this.$refs.tableHeader.clientWidth);
 
 			_$this.bodyVisable = !!_$this.$refs.tableHeader;
+		},
+		handleResize()
+		{
+			let _$this = this;
+			_$this.bodyVisable = false;
+			_$this.$nextTick(
+				() =>
+				{
+					_$this.tableResize();
+				}
+			);
 		}
 
 	},
@@ -447,24 +458,24 @@ export default {
 	{
 		let _$this = this;
 
-		_$this.handleResize();
-		//////_$this.$nextTick(() => _$this.ready = true);
+		_$this.tableResize();
+		////_$this.$nextTick(() => _$this.ready = true);
 
-		//on(window, 'resize', _$this.handleResize);
+		on(window, 'resize', _$this.handleResize);
 		//_$this.observer = elementResizeDetectorMaker();
 		//_$this.observer.listenTo(_$this.$el, _$this.handleResize);
 
-		//_$this.$on('on-visible-change', (val) =>
-		//{
-		//    if (val)
-		//    {
-		//        _$this.handleResize();
-		//    }
-		//});
+		_$this.$on('on-visible-change', (val) =>
+		{
+		    if (val)
+		    {
+		        _$this.handleResize();
+		    }
+		});
 	},
 	beforeDestroy()
 	{
-		//off(window, 'resize', this.handleResize);
+		off(window, 'resize', this.handleResize);
 		//this.observer.removeListener(this.$el, this.handleResize);
 	}
 };
