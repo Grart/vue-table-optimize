@@ -1,18 +1,25 @@
 <template>
     <div>
-            <!--<vue-virtual-scroll-table :columns-config='tableTitle'
+        <!--<vue-virtual-scroll-table :columns-config='tableTitle'
+                      :data='result'
+                      :table-width="1000"
+                      render-type='VIRTUAL'
+                      record-key='_id'
+                      header-class='header-title__virtual'></vue-virtual-scroll-table>-->
+        <vue-virtual-scroll-table :columns-config='tableTitle'
                                   :data='result'
-                                  :table-width="1000"
-                                  render-type='VIRTUAL'
                                   record-key='_id'
-                                  header-class='header-title__virtual'></vue-virtual-scroll-table>-->
-            <vue-virtual-scroll-table :columns-config='tableTitle'
-                                      :data='result'
-                                      record-key='_id'
-                                      header-class='header-title__virtual'></vue-virtual-scroll-table>
-            <div>
-                <h2>ddd</h2>
-            </div>
+                                  header-class='header-title__virtual'></vue-virtual-scroll-table>
+        <div>
+            <h2>GRART</h2>
+        </div>
+        <div>
+            <input type="checkbox" />
+        </div>
+        <cmp1>
+        </cmp1>
+        <cmp2>
+        </cmp2>
     </div>
 </template>
 
@@ -30,9 +37,72 @@
     const ASC = 'asc';
     const NO_MATCH_STOP = 'no matched';
 
+
+    const cmp1 = {
+        data()
+        {
+            return {
+                val: 1
+            }
+        },
+        render: function (h, params)
+        {
+            let _$this = this;
+            console.log('render cmp1');
+            return h(
+                "div",
+                {
+                    on: {
+                        click: function (e)
+                        {
+                            _$this.val++;
+                        }
+                    }
+                },
+                _$this.val
+            );
+        }
+    };
+
+
+    const cmp2 = {
+        data()
+        {
+            return {
+                val: 1
+            }
+        },
+        render: function (h, params)
+        {
+            let _$this = this;
+            console.log('render cmp2');
+            return h(
+                "div",
+                {
+                },
+                [
+                    h(
+                        "button",
+                        {
+                            on: {
+                                click: function (e)
+                                {
+                                    _$this.val++;
+                                }
+                            }
+                        },
+                        "Cmp2 - "+_$this.val
+                    ),
+                    h(cmp1),
+                    h(cmp1),
+                    h(cmp1)
+                ]
+            );
+        }
+    };
     export default {
         name: 'VirtualScrollTable',
-        components: { VueVirtualScrollTable },
+        components: { VueVirtualScrollTable, cmp1, cmp2},
         data()
         {
             return {

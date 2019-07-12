@@ -7,6 +7,8 @@
                  v-for='record in renderData'
                  :key='record[recordKey]'
                  :style='getRowContainerStyle(record)'
+                 @click="handleRowClick(record)"
+                 @dblclick="handleRowDblClick(record)"
                  @mouseenter.stop="handleMouseIn(record.__vkey)"
                  @mouseleave.stop="handleMouseOut(record.__vkey)">
                 <ul class='c-table-body__record'
@@ -30,9 +32,7 @@
 
 <script lang="ts">
     import RenderBody from './tableHelper/expand';
-    import { VIRTUAL_REMAIN_COUNT } from './tableHelper/constant';
     import _ from 'lodash';
-    import { calDomItemsHeight } from './tableHelper/tableUtil';
 
     export default {
         name: 'VirtualScrollTableFixedBody',
@@ -52,6 +52,7 @@
                 handler: function (val)
                 {
                     this.renderData = _.cloneDeep(val.renderData);
+                    console.log('watch virtualItems', val);
                 },
                 immediate: true,
                 deep: true,
@@ -91,6 +92,19 @@
             },
         },
         methods: {
+            handleRowClick(record)
+            {
+                let _vkey = record.__vkey;
+                this.scrollSynclData.clicked_vkey = _vkey;
+                console.log('click', _vkey, JSON.stringify(record));
+                this.$emit('on-row-click', JSON.parse(JSON.stringify(record)), _vkey);
+            },
+            handleRowDblClick(record)
+            {
+                let _vkey = record.__vkey;
+                console.log('dblClick');
+                this.$emit('on-row-dblclick', JSON.parse(JSON.stringify(record)), _vkey);
+            },
             handleMouseIn(vkey)
             {
                 this.scrollSynclData.focus_vkey = vkey;
@@ -108,7 +122,8 @@
             },
             getRowContainerStyle: function (record)
             {
-                let _isHover = this.scrollSynclData.focus_vkey == record.__vkey;
+                let _isHover = this.scrollSynclData.focus_vkey == record.__vkey
+                    || this.scrollSynclData.clicked_vkey == record.__vkey;
                 let _color = _isHover ? "#ebf7ff" : "";
                 return {
                     transform: `translateY(${record.translateY})`,

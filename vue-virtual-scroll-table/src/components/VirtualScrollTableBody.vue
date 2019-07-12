@@ -11,6 +11,8 @@
                      v-for='record in renderData'
                      :key='record[recordKey]'
                      :style='getRowContainerStyle(record)'
+                     @click="handleRowClick(record)"
+                     @dblclick="handleRowDblClick(record)"
                      @mouseenter.stop="handleMouseIn(record.__vkey)"
                      @mouseleave.stop="handleMouseOut(record.__vkey)">
                     <ul class='c-table-body__record'
@@ -107,6 +109,19 @@
             },
         },
         methods: {
+            handleRowClick(record)
+            {
+                let _vkey = record.__vkey;
+                this.scrollSynclData.clicked_vkey = _vkey;
+                console.log('click', _vkey, JSON.stringify(record));
+                this.$emit('on-row-click', JSON.parse(JSON.stringify(record)), _vkey);
+            },
+            handleRowDblClick(record)
+            {
+                let _vkey = record.__vkey;
+                console.log('dblClick');
+                this.$emit('on-row-dblclick', JSON.parse(JSON.stringify(record)), _vkey);
+            },
             handleMouseIn(vkey)
             {
                 this.scrollSynclData.focus_vkey = vkey;
@@ -141,7 +156,8 @@
             },
             getRowContainerStyle: function (record)
             {
-                let _isHover = this.scrollSynclData.focus_vkey == record.__vkey;
+                let _isHover = this.scrollSynclData.focus_vkey == record.__vkey
+                    || this.scrollSynclData.clicked_vkey == record.__vkey;
                 let _color = _isHover ? "#ebf7ff" : "";
                 return {
                     transform: `translateY(${record.translateY})`,
@@ -239,12 +255,67 @@
             },
             onVirtualScroll(e)
             {
-                //this.refreshRenderData();
-                //console.log(this.hiddenVerticalScroll);
-                window.requestAnimationFrame(this.refreshRenderData);
-            },
+                let _$this = this;
+                window.requestAnimationFrame(_$this.refreshRenderData);
+
+
+                //if (!_$this.throttleVirtualScroll)
+                //{
+                //    _$this.throttleVirtualScroll = throttle(
+                //        () =>
+                //        {
+                //            console.log(+new Date());
+                //            _$this.refreshRenderData();
+                //        },
+                //        125
+                //    );
+                //}
+                //_$this.throttleVirtualScroll();
+            }
         },
     };
+
+
+    ///**
+    // * 节流函数
+    // */
+    //function throttle(fn, delay)
+    //{
+    //    let _timer = null
+    //    let _previous = null
+    //    return function ()
+    //    {
+    //        let _now = +new Date()
+    //        if (null == _previous)
+    //        {
+    //            _previous = _now;
+    //            fn();
+    //        }
+    //        else
+    //        {
+    //            let _delay = _now - _previous;
+    //            console.log(_delay);
+    //            if (_delay < delay)
+    //            {
+    //                _timer = setTimeout(
+    //                    function ()
+    //                    {
+    //                        _previous = _now;
+    //                        fn();
+    //                        _timer = null;
+    //                    },
+    //                    delay - _delay
+    //                );
+    //            }
+    //            else
+    //            {
+    //                _previous = _now;
+    //                fn();
+    //            }
+    //        }
+    //    }
+    //}
+
 </script>
 
 <style scoped>
