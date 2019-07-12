@@ -8,7 +8,8 @@
                       :body-height='bodyHeight'
                       :table-width='tableWidth'
                       :record-height='recordHeight'
-                      :header-class='headerClass'></single-table>
+                      :header-class='headerClass'
+                      @on-selection-change="selectionChange"></single-table>
     </div>
 </template>
 
@@ -136,6 +137,10 @@
             },
         },
         methods: {
+            selectionChange: function (selectionArray)
+            {
+                console.log(selectionArray);
+            },
             buildColumnUUID: function (columnsConfig)
             {
                 return columnsConfig.map(item =>

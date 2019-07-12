@@ -52,7 +52,7 @@
                 handler: function (val)
                 {
                     this.renderData = _.cloneDeep(val.renderData);
-                    console.log('watch virtualItems', val);
+                    //console.log('watch virtualItems', val);
                 },
                 immediate: true,
                 deep: true,
@@ -96,7 +96,7 @@
             {
                 let _vkey = record.__vkey;
                 this.scrollSynclData.clicked_vkey = _vkey;
-                console.log('click', _vkey, JSON.stringify(record));
+                //console.log('click', _vkey, JSON.stringify(record));
                 this.$emit('on-row-click', JSON.parse(JSON.stringify(record)), _vkey);
             },
             handleRowDblClick(record)
