@@ -6,8 +6,8 @@
         <div>
             <input type="checkbox" />
         </div>
-        <cmp1>
-        </cmp1>
+        <!--<cmp1>
+        </cmp1>-->
         <cmp2>
         </cmp2>
     </div>
@@ -22,10 +22,13 @@
                 val: 1
             }
         },
+        props: {
+            name: String
+        },
         render: function (h, params)
         {
             let _$this = this;
-            console.log('render cmp1');
+            console.log('render cmp1',_$this);
             return h(
                 "div",
                 {
@@ -36,7 +39,7 @@
                         }
                     }
                 },
-                _$this.val
+                `${_$this.name}:${_$this.val}`
             );
         },
         mounted: function ()
@@ -74,9 +77,30 @@
                         },
                         "Cmp2 - "+_$this.val
                     ),
-                    h(cmp1),
-                    h(cmp1),
-                    h(cmp1)
+                    h(
+                        cmp1,
+                        {
+                            props: {
+                                name: "A" + _$this.val
+                            }
+                        }
+                    ),
+                    h(
+                        cmp1,
+                        {
+                            props: {
+                                name: "B" + _$this.val
+                            }
+                        }
+                    ),
+                    h(
+                        cmp1,
+                        {
+                            props: {
+                                name: "C" + _$this.val
+                            }
+                        }
+                    ),
                 ]
             );
         },
