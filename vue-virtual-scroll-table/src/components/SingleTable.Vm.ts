@@ -298,7 +298,7 @@ class VmMethods
 		_$this.hiddenVerticalScroll = (_$this.bodyWidth > _getAllColumnsWidth);
 
 		let _diffWidth = _$this.bodyWidth - _getAllColumnsWidth;
-		console.log('bodyWidth=', _$this.bodyWidth, '_defWidth=', _diffWidth);
+		//console.log('bodyWidth=', _$this.bodyWidth, '_defWidth=', _diffWidth);
 		let _lessWidth = _diffWidth;
 		let _unFixColumns = _$this.getUnFixedColumnsConfig;
 		for (let _c = 0, _cLen = _unFixColumns.length, _cLast = _cLen - 1; _c < _cLen; _c++)
@@ -313,7 +313,7 @@ class VmMethods
 				_col.width = _defaultWidth + ((_lessWidth < _rateWidth || _cLast == _c) ? _lessWidth : _rateWidth);
 				_lessWidth -= _rateWidth;
 				_col.cWidth = `${_col.width}px`;
-				console.log('_col=', _col.key, '_lessWidth=', _lessWidth, '_w2=', _rateWidth, 'cWidth=', _col.cWidth);
+				//console.log('_col=', _col.key, '_lessWidth=', _lessWidth, '_w2=', _rateWidth, 'cWidth=', _col.cWidth);
 			}
 			else
 			{
