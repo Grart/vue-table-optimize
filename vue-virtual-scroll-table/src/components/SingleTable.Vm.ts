@@ -27,7 +27,7 @@ function getColumnsWidth(columnsConfig)
 /**
  * 计算默认列宽
  */
-function getColumnsDefaultWidth(
+function getAndInitColumnsDefaultWidth(
 	columnsConfig
 )
 {
@@ -72,7 +72,7 @@ class VmComputed
 		return this.cloneColumnsConfig.filter(
 			m => m.fixed != 'right' && m.fixed != 'left'
 		);
-	} as any as number;
+	} as any as ColumnConfig[];
 	getFixedLeftColumnsConfig = function (
 		this: VmThis
 	)
@@ -80,7 +80,7 @@ class VmComputed
 		return this.cloneColumnsConfig.filter(
 			m => m.fixed == 'left'
 		);
-	} as any as number;
+	} as any as ColumnConfig[];
 	getFixedRightColumnsConfig = function (
 		this: VmThis
 	)
@@ -88,7 +88,7 @@ class VmComputed
 		return this.cloneColumnsConfig.filter(
 			m => m.fixed == 'right'
 		);
-	} as any as number;
+	} as any as ColumnConfig[];
 	getFixedLeftWidth = function (
 		this: VmThis
 	)
@@ -195,15 +195,10 @@ class VmComputed
 		this: VmThis
 	)
 	{
-		let _height = 0;
-		if (this.hiddenVerticalScroll)
+		let _height = this.getTableHeight;
+		if (!this.hiddenVerticalScroll)
 		{
-			//为了显示左冻结列，右方的表格线条
-			_height = this.data.length * this.recordHeight;
-		}
-		else
-		{
-			_height = this.getTableHeight - this.scrollSynclData.scrollbarWidth + 2;
+			_height = _height - this.scrollSynclData.scrollbarWidth + 2;
 		}
 		return {
 			'border-right': this.hiddenVerticalScroll ? '1px solid #dddddd' : '',
@@ -289,6 +284,7 @@ class VmMethods
 		this: VmThis
 	)
 	{
+		//自适应列宽
 		let _$this = this;
 		_$this.bodyWidth = _$this.$refs.tableWrapper.clientWidth;//tableHeader
 		if (0 == _$this.bodyWidth)
@@ -297,35 +293,35 @@ class VmMethods
 		}
 		_$this.bodyWidth = 0 == _$this.bodyWidth ? 0 : (_$this.bodyWidth - 5);
 
-		console.log(_$this.bodyWidth);
-		let _getAllColumnsWidth = getColumnsDefaultWidth(_$this.cloneColumnsConfig);// _$this.getAllColumnsWidth;
+		let _getAllColumnsWidth = getAndInitColumnsDefaultWidth(_$this.cloneColumnsConfig);// _$this.getAllColumnsWidth;
 		let _getUnFixedWidth = _$this.getUnFixedWidth;
 		_$this.hiddenVerticalScroll = (_$this.bodyWidth > _getAllColumnsWidth);
 
-		let _defWidth = _$this.bodyWidth - _getAllColumnsWidth;
-		let _lessWidth = _defWidth;
-		for (let _c = 0; _c < _$this.cloneColumnsConfig.length; _c++)
+		let _diffWidth = _$this.bodyWidth - _getAllColumnsWidth;
+		console.log('bodyWidth=', _$this.bodyWidth, '_defWidth=', _diffWidth);
+		let _lessWidth = _diffWidth;
+		let _unFixColumns = _$this.getUnFixedColumnsConfig;
+		for (let _c = 0, _cLen = _unFixColumns.length, _cLast = _cLen - 1; _c < _cLen; _c++)
 		{
-			let _col = _$this.cloneColumnsConfig[_c];
-			if (_col.fixed != 'right' && _col.fixed != 'left')
+			let _col = _unFixColumns[_c];
+
+			if (_$this.hiddenVerticalScroll)
 			{
-				if (_$this.hiddenVerticalScroll)
-				{
-					//如果长度超过设定宽度，调整列宽度
-					let _w = parseInt(_col.cWidth ? _col.cWidth.replace('px', '') : _col.width);
-					let _w2 = parseInt(_w / _getUnFixedWidth * _defWidth);
-					_col.width = _w + (_lessWidth > _w2 ? _w2 : _lessWidth);
-					_lessWidth -= _w2;
-					_col.cWidth = `${_col.width}px`;
-				}
-				else
-				{
-					_col.cWidth = `${_col.defaultWidth}px`;
-				}
+				//如果长度超过设定宽度，调整列宽度
+				let _defaultWidth = parseInt(_col.defaultWidth);
+				let _rateWidth = parseInt(_defaultWidth / _getUnFixedWidth * _diffWidth);
+				_col.width = _defaultWidth + ((_lessWidth < _rateWidth || _cLast == _c) ? _lessWidth : _rateWidth);
+				_lessWidth -= _rateWidth;
+				_col.cWidth = `${_col.width}px`;
+				console.log('_col=', _col.key, '_lessWidth=', _lessWidth, '_w2=', _rateWidth, 'cWidth=', _col.cWidth);
+			}
+			else
+			{
+				_col.cWidth = `${_col.defaultWidth}px`;
 			}
 		}
 
-
+		console.log(_$this.cloneColumnsConfig);
 		_$this.bodyVisable = !!_$this.$refs.tableHeader;
 	};
 
@@ -362,7 +358,9 @@ export default {
 	},
 	computed: new VmComputed(),
 	methods: new VmMethods(),
-	mounted: function ()
+	mounted: function (
+		this: VmThis
+	)
 	{
 		let _$this = this;
 
@@ -381,7 +379,9 @@ export default {
 		    }
 		});
 	},
-	beforeDestroy()
+	beforeDestroy(
+		this: VmThis
+	)
 	{
 		off(window, 'resize', this.handleResize);
 		//this.observer.removeListener(this.$el, this.handleResize);
