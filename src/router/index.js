@@ -25,7 +25,7 @@ export default new Router({
 			component: VirtualScrollTable,
 		},
 		{
-			path: '/ComponentTest',
+			path: '/componentTest',
 			name: 'ComponentTest',
 			component: ComponentTest,
 		},

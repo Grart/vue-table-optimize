@@ -1,6 +1,7 @@
 //表格多选列
 //checkbox 组件
-const selectionComponent = {
+const SelectionCheckBox = {
+	name: 'SelectionCheckBox',
 	props: {
 		checkSyncObject: Object
 	},
@@ -159,7 +160,7 @@ export function generateSelectionColumn(
 			let _index = params.index;
 			console.log(params);
 			return h(
-				selectionComponent,
+				SelectionCheckBox,
 				{
 					props: {
 						checkSyncObject: _toggleSelectObject
@@ -182,7 +183,7 @@ export function generateSelectionColumn(
 				};
 			}
 			return h(
-				selectionComponent,
+				SelectionCheckBox,
 				{
 					props: {
 						checkSyncObject: _checkObject

@@ -2,11 +2,11 @@
     <div id='app'>
         <nav class='left'>
             <h1>Body Render</h1>
-            <ul @click='clickMenu'>
-                <li><a class='menu-link' :class='{active: commonLinkActive}' id='commonMenu' href='#/'>Common Body</a></li>
-                <li><a class='menu-link' :class='{active: rafLinkActive}' href='#/requestAnimationFrame' id='requestAnimationFrameMenu'>RequestAnimationFrame</a></li>
-                <li><a class='menu-link' :class='{active: virtualLinkActive}' href='#/virtualScroll' id='virtualMenu'>Virtual Scroll</a></li>
-                <li><a class='menu-link' :class='{active: virtualLinkActive}' href='#/ComponentTest' id='virtualMenu'>Component Test</a></li>
+            <ul>
+                <li><a class='menu-link' :class='{active: commonLinkActive}' href='#/'>Common Body</a></li>
+                <li><a class='menu-link' :class='{active: rafLinkActive}' href='#/requestAnimationFrame'>RequestAnimationFrame</a></li>
+                <li><a class='menu-link' :class='{active: virtualLinkActive}' href='#/virtualScroll'>Virtual Scroll</a></li>
+                <li><a class='menu-link' :class='{active: componentTestLinkActive}' href='#/componentTest'>Component Test</a></li>
             </ul>
         </nav>
         <article class='right'>
@@ -20,61 +20,55 @@
         name: 'App',
         data()
         {
-            let [commonLinkActive, rafLinkActive, virtualLinkActive] = this.initLinkStatus();
-            return {
-                commonLinkActive: commonLinkActive,
-                rafLinkActive: rafLinkActive,
-                virtualLinkActive: virtualLinkActive,
-            };
+            return this.initLinkStatus();
         },
         methods: {
             initLinkStatus: function ()
             {
-                if (this.$route.path.indexOf('requestAnimationFrame') > -1)
-                {
-                    return [
-                        false,
-                        true,
-                        false,
-                    ];
+                let _pathAry = ["", "requestAnimationFrame", "virtualScroll", "componentTest"];
+                let _path = this.$route.path;
+                _path = _path.substring(_path.lastIndexOf('/') + 1);
+                console.log(_path);
+                let [commonLinkActive, rafLinkActive, virtualLinkActive, componentTestLinkActive] = _pathAry.map((val) => val == _path);
+                return {
+                    commonLinkActive: commonLinkActive,
+                    rafLinkActive: rafLinkActive,
+                    virtualLinkActive: virtualLinkActive,
+                    componentTestLinkActive: componentTestLinkActive
                 }
-                if (this.$route.path.indexOf('virtualScroll') > -1)
-                {
-                    return [
-                        false,
-                        false,
-                        true,
-                    ];
-                }
-                return [
-                    true,
-                    false,
-                    false,
-                ];
             },
-            clickMenu: function (e)
+            updateLinkStatus: function (to, from)
             {
-                if (e.target.id)
-                {
-                    this.commonLinkActive = false;
-                    this.rafLinkActive = false;
-                    this.virtualLinkActiv = false;
-                    if (e.target.id === 'commonMenu')
+                this.$nextTick(
+                    () =>
                     {
-                        this.commonLinkActive = true;
-                    }
-                    if (e.target.id === 'requestAnimationFrameMenu')
-                    {
-                        this.rafLinkActive = true;
-                    }
-                    if (e.target.id === 'virtualMenu')
-                    {
-                        this.virtualLinkActive = true;
-                    }
-                }
-            },
+                        let _status = this.initLinkStatus();
+                        for (let _key in _status)
+                        {
+                            this[_key] = _status[_key];
+                        }
+
+                    });
+            }
         },
+        mounted: function ()
+        {
+            globalAppVmThis = this;
+            if (-1 == this.$router.afterHooks.indexOf(globalRouterHook))
+            {
+                this.$router.afterEach(
+                    globalRouterHook
+                );
+                console.log(this.$router.afterHooks);
+            }
+
+        }
     };
+    let globalAppVmThis;
+    function globalRouterHook(to, from)
+    {
+        globalAppVmThis && globalAppVmThis.updateLinkStatus();
+    }
 </script>
 
 <style>
