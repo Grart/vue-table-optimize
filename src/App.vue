@@ -6,6 +6,7 @@
                 <li><a class='menu-link' :class='{active: commonLinkActive}' id='commonMenu' href='#/'>Common Body</a></li>
                 <li><a class='menu-link' :class='{active: rafLinkActive}' href='#/requestAnimationFrame' id='requestAnimationFrameMenu'>RequestAnimationFrame</a></li>
                 <li><a class='menu-link' :class='{active: virtualLinkActive}' href='#/virtualScroll' id='virtualMenu'>Virtual Scroll</a></li>
+                <li><a class='menu-link' :class='{active: virtualLinkActive}' href='#/ComponentTest' id='virtualMenu'>Component Test</a></li>
             </ul>
         </nav>
         <article class='right'>

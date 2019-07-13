@@ -10,16 +10,6 @@
                                   :data='result'
                                   record-key='_id'
                                   header-class='header-title__virtual'></vue-virtual-scroll-table>
-        <div>
-            <h2>GRART</h2>
-        </div>
-        <div>
-            <input type="checkbox" />
-        </div>
-        <cmp1>
-        </cmp1>
-        <cmp2>
-        </cmp2>
     </div>
 </template>
 
@@ -53,79 +43,9 @@
     const NO_MATCH_STOP = 'no matched';
 
 
-    const cmp1 = {
-        data()
-        {
-            return {
-                val: 1
-            }
-        },
-        render: function (h, params)
-        {
-            let _$this = this;
-            console.log('render cmp1');
-            return h(
-                "div",
-                {
-                    on: {
-                        click: function (e)
-                        {
-                            _$this.val++;
-                        }
-                    }
-                },
-                _$this.val
-            );
-        },
-        mounted: function ()
-        {
-            console.log('mounted cmp1');
-        }
-    };
-
-
-    const cmp2 = {
-        data()
-        {
-            return {
-                val: 1
-            }
-        },
-        render: function (h, params)
-        {
-            let _$this = this;
-            console.log('render cmp2');
-            return h(
-                "div",
-                {
-                },
-                [
-                    h(
-                        "button",
-                        {
-                            on: {
-                                click: function (e)
-                                {
-                                    _$this.val++;
-                                }
-                            }
-                        },
-                        "Cmp2 - "+_$this.val
-                    ),
-                    h(cmp1),
-                    h(cmp1),
-                    h(cmp1)
-                ]
-            );
-        },
-        mounted: function ()
-        {
-            console.log('mounted cmp2');
-        }
-    };
     export default {
         name: 'VirtualScrollTable',
-        components: { VueVirtualScrollTable, cmp1, cmp2},
+        components: { VueVirtualScrollTable},
         data()
         {
             return {
