@@ -25,7 +25,22 @@
 
 <script lang="ts">
     import VueVirtualScrollTable from '../../vue-virtual-scroll-table'
-    import result from './data/schedule';
+    //import result from './data/schedule';
+    const result = [{
+        "_id": "5c515da6b4e01b32e8cdf5ed",
+        "key": "122731837",
+        "direction": "W",
+        "from": "TEST1",
+        "to": "TEST2",
+        "actualDeparture": "2019-01-28 03:44",
+        "planArrival": "2019-01-31 14:00",
+        "coastalArrival": "2019-01-31 14:00",
+        "predictArrival": "2019-01-31 13:00",
+        "actualDelay": 0,
+        "deviations": "no plan",
+        "potentialDelay": 7,
+        "status": "Normal"
+    }];
     //import VueVirtualScrollTable from '../index';
     import
     {
@@ -61,6 +76,10 @@
                 },
                 _$this.val
             );
+        },
+        mounted: function ()
+        {
+            console.log('mounted cmp1');
         }
     };
 
@@ -98,6 +117,10 @@
                     h(cmp1)
                 ]
             );
+        },
+        mounted: function ()
+        {
+            console.log('mounted cmp2');
         }
     };
     export default {

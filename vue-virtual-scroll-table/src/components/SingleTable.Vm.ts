@@ -7,6 +7,7 @@ import TableBody from './SingleTableBody';
 import RequestAnimationFrameTableBody from './RequestAnimationFrameTableBody';
 import VirtualScrollTableBody from './VirtualScrollTableBody';
 import VirtualScrollTableFixed from './VirtualScrollTableFixed';
+import { generateSelectionColumn } from './tableHelper/selectionUtil'
 /**
  * 计算列宽
  */
@@ -23,6 +24,9 @@ function getColumnsWidth(columnsConfig)
 	}
 	return _bodyWidth;
 }
+/**
+ * 计算默认列宽
+ */
 function getColumnsDefaultWidth(
 	columnsConfig
 )
@@ -41,52 +45,305 @@ function getColumnsDefaultWidth(
 	}
 	return _bodyWidth;
 }
-//checkbox 组件
-const SelectionComponent = {
-	props: {
-		checkSyncObject: Object
-	},
-	data()
+
+
+type VmThis = VmProps & VmWatch & VmMethods & VmData & VmComputed;
+
+class VmProps
+{
+	columnsConfig = Array as any as ColumnConfig[]
+	data = Array as any as any[]
+	recordKey = String as any as number
+	headerHeight = Number as any as number
+	bodyHeight = Number as any as number
+	tableWidth = Number as any as number
+	recordHeight = Number as any as number
+	headerClass = {
+		type: String,
+		default: 'c-table-header__default'
+	} as any as string
+}
+class VmComputed
+{
+	getUnFixedColumnsConfig = function (
+		this: VmThis
+	)
 	{
-		let _$this = this;
-		return _$this.checkSyncObject;//直接把输入属性做绑定对像绑定
-	},
-	render: function (h, params)
-	{
-		let _$this = this;
-		let _synObject = _$this.checkSyncObject;
-		//console.log('render selection');
-		return h(
-			"div",
-			{
-				on: {
-					click: function (e)
-					{
-						_synObject.checked = _$this.checked = !_$this.checked;
-						if (_synObject.onCheckedChange)
-						{
-							_synObject.onCheckedChange(
-								_$this.checked,
-								_$this.index
-							);
-						}
-					}
-				}
-			},
-			[
-				h("span", {
-					staticClass: true == _$this.checked ? "iconfont icon-checkbox_on" : "iconfont icon-check-box-off",
-					staticStyle: {
-						'font-size': '18px',
-						'width': '40px',
-						'color': '#2d8cf0'
-					},
-					attrs: {}
-				})
-			]
+		return this.cloneColumnsConfig.filter(
+			m => m.fixed != 'right' && m.fixed != 'left'
 		);
+	} as any as number;
+	getFixedLeftColumnsConfig = function (
+		this: VmThis
+	)
+	{
+		return this.cloneColumnsConfig.filter(
+			m => m.fixed == 'left'
+		);
+	} as any as number;
+	getFixedRightColumnsConfig = function (
+		this: VmThis
+	)
+	{
+		return this.cloneColumnsConfig.filter(
+			m => m.fixed == 'right'
+		);
+	} as any as number;
+	getFixedLeftWidth = function (
+		this: VmThis
+	)
+	{
+		return getColumnsWidth(this.getFixedLeftColumnsConfig);
+	} as any as number;
+	getFixedRightWidth = function (
+		this: VmThis
+	)
+	{
+		return getColumnsWidth(this.getFixedRightColumnsConfig);
+	} as any as number;
+	getUnFixedWidth = function (
+		this: VmThis
+	)
+	{
+		return getColumnsWidth(this.getUnFixedColumnsConfig);
+	} as any as number;
+	getAllColumnsWidth = function (
+		this: VmThis
+	)
+	{
+		return getColumnsWidth(this.cloneColumnsConfig);
+	} as any as number;
+	getBodyHeight = function (
+		this: VmThis
+	)
+	{
+		return this.data.length * this.recordHeight;
+	} as any as number;
+
+	getTableWrapperStyle = function (
+		this: VmThis
+	)
+	{
+		//最外层嵌套元素样式
+		let _width = this.bodyVisable ? (this.tableWidth ? this.tableWidth : this.bodyWidth) : 0;
+		return {
+			width: 0 != _width ? `${_width}px` : 'inherit',
+			position: "relative"
+		};
+	} as any as Object;
+
+	getHeaderStyle = function (
+		this: VmThis
+	)
+	{
+		let _totalWidth = this.getUnFixedWidth + this.getFixedLeftWidth + this.getFixedRightWidth;
+		console.log(this.scrollSynclData.offsetWidth);
+		return {
+			width: (this.tableWidth ? `${this.tableWidth}px` : (this.bodyVisable ? `${this.bodyWidth - 18}px` : 'inherit')),
+			"overflow-x": "hidden",
+			"overflow-y": "hidden"
+		}
+
+		//return `${(this.scrollSynclData ? this.scrollSynclData.offsetWidth : this.tableWidth)}px`;
+	} as any as Object;
+	getHeaderColumnWidth = function (
+		this: VmThis
+	)
+	{
+		return `${(this.scrollSynclData ? this.scrollSynclData.offsetWidth : this.tableWidth) - this.scrollSynclData.scrollbarWidth - 4}px`;
+	} as any as string;
+	getTableHeight = function (
+		this: VmThis
+	): number
+	{
+		return this.bodyHeight + this.headerHeight;
+	} as any as number;
+	getFixedRightClass = function (
+		this: VmThis
+	)
+	{
+		return this.hiddenVerticalScroll ? '' : 'c-table-fiexed-right';
+	} as any as string;
+	getFixedRightStyle = function (
+		this: VmThis
+	)
+	{
+		let _height = this.getTableHeight;
+		if (!this.hiddenVerticalScroll)
+		{
+			_height = _height - this.scrollSynclData.scrollbarWidth + 2;
+		}
+		return {
+			top: `${0}px`,
+			right: `${this.scrollSynclData.scrollbarWidth + 1}px`,
+			width: `${this.getFixedRightWidth}px`,
+			height: `${_height}px`,
+			position: 'absolute',//顶层要用position: relative;
+			'background-color': 'ghostwhite',
+			"overflow-x": "hidden",
+			"overflow-y": "hidden",
+			'box-sizing': 'order-box'
+		};
+	} as any as Object;
+	getFixedLeftClass = function (
+		this: VmThis
+	)
+	{
+		return this.hiddenVerticalScroll ? '' : 'c-table-fiexed-left';
+	} as any as string;
+	getFixedLeftStyle = function (
+		this: VmThis
+	)
+	{
+		let _height = 0;
+		if (this.hiddenVerticalScroll)
+		{
+			//为了显示左冻结列，右方的表格线条
+			_height = this.data.length * this.recordHeight;
+		}
+		else
+		{
+			_height = this.getTableHeight - this.scrollSynclData.scrollbarWidth + 2;
+		}
+		return {
+			'border-right': this.hiddenVerticalScroll ? '1px solid #dddddd' : '',
+			top: `${0}px`,
+			left: `${1}px`,
+			width: `${this.getFixedLeftWidth}px`,
+			height: `${_height}px`,
+			position: 'absolute',//顶层要用position: relative;
+			'background-color': 'ghostwhite',
+			"overflow-x": "hidden",
+			"overflow-y": "hidden",
+			'box-sizing': 'order-box'
+		};
+	} as any as Object;
+	getFloatRightHeaderStyle = function (
+		this: VmThis
+	)
+	{
+		console.log(`${this.headerHeight}px`);
+		return {
+			height: `${this.headerHeight}px`
+		};
+	} as any as Object;
+}
+
+class VmData
+{
+	//滚动条同步对像,body通过这个对像将同步信息传给header
+	scrollSynclData = {
+		scrollTop: 0,
+		scrollLeft: 0,
+		scrollbarWidth: 16,
+		offsetWidth: 0,
+		focus_vkey: -1,
+		clicked_vkey: -1,
+		virtualItems: {
+			renderData: [],
+			newItems: [],
+			replaceItemsIndex: 0
+		}
+	};
+	cloneColumnsConfig: ColumnConfig[] = null;
+	bodyVisable = false;
+	hiddenVerticalScroll = false;
+	bodyWidth = 0;
+	selectionColumn: ColumnConfig = null;
+}
+
+class VmWatch
+{
+	columnsConfig = {
+		handler: function (
+			this: VmThis,
+			config: ColumnConfig[]
+		)
+		{
+			let _$this = this;
+			if (!config || config.length == 0)
+			{
+				return _$this.cloneColumnsConfig = [];
+			}
+			console.log('handler columnsConfig', config);
+			if (null == _$this.selectionColumn)
+			{
+				//用临时变量的话会selectionColumn绑定到组件上会有异常
+				//（因为构建时, VmWatch进入了两次, 函数内的_toggleSelectObject和绑定到组件上的_toggleSelectObject不是同一对象），回头研究
+				_$this.selectionColumn = generateSelectionColumn(_$this);
+			}
+			return _$this.cloneColumnsConfig = [_$this.selectionColumn, ...config];
+
+			/**
+			 * 获取选择的数据
+			 */
+		},
+		immediate: true,
+		//deep: true,
 	}
-};
+}
+
+class VmMethods
+{
+	tableResize = function (
+		this: VmThis
+	)
+	{
+		let _$this = this;
+		_$this.bodyWidth = _$this.$refs.tableWrapper.clientWidth;//tableHeader
+		if (0 == _$this.bodyWidth)
+		{
+			_$this.bodyWidth = _$this.$refs.tableWrapper.scrollWidth;
+		}
+		_$this.bodyWidth = 0 == _$this.bodyWidth ? 0 : (_$this.bodyWidth - 5);
+
+		console.log(_$this.bodyWidth);
+		let _getAllColumnsWidth = getColumnsDefaultWidth(_$this.cloneColumnsConfig);// _$this.getAllColumnsWidth;
+		let _getUnFixedWidth = _$this.getUnFixedWidth;
+		_$this.hiddenVerticalScroll = (_$this.bodyWidth > _getAllColumnsWidth);
+
+		let _defWidth = _$this.bodyWidth - _getAllColumnsWidth;
+		let _lessWidth = _defWidth;
+		for (let _c = 0; _c < _$this.cloneColumnsConfig.length; _c++)
+		{
+			let _col = _$this.cloneColumnsConfig[_c];
+			if (_col.fixed != 'right' && _col.fixed != 'left')
+			{
+				if (_$this.hiddenVerticalScroll)
+				{
+					//如果长度超过设定宽度，调整列宽度
+					let _w = parseInt(_col.cWidth ? _col.cWidth.replace('px', '') : _col.width);
+					let _w2 = parseInt(_w / _getUnFixedWidth * _defWidth);
+					_col.width = _w + (_lessWidth > _w2 ? _w2 : _lessWidth);
+					_lessWidth -= _w2;
+					_col.cWidth = `${_col.width}px`;
+				}
+				else
+				{
+					_col.cWidth = `${_col.defaultWidth}px`;
+				}
+			}
+		}
+
+
+		_$this.bodyVisable = !!_$this.$refs.tableHeader;
+	};
+
+	handleResize = function (
+		this: VmThis
+	)
+	{
+		let _$this = this;
+		_$this.bodyVisable = false;
+		_$this.$nextTick(
+			() =>
+			{
+				_$this.tableResize();
+			}
+		);
+	};
+}
+
 
 export default {
 	components: {
@@ -97,382 +354,14 @@ export default {
 		VirtualScrollTableFixed,
 	},
 	name: 'SingleTable',
-	props: {
-		columnsConfig: Array,
-		data: Array,
-		recordKey: String,
-		headerHeight: Number,
-		bodyHeight: Number,
-		tableWidth: Number,
-		recordHeight: Number,
-		headerClass: {
-			type: String,
-			default: 'c-table-header__default'
-		},
-	},
+	props: new VmProps(),
+	watch: new VmWatch(),
 	data()
 	{
-		return {
-			//滚动条同步对像,body通过这个对像将同步信息传给header
-			scrollSynclData: {
-				scrollTop: 0,
-				scrollLeft: 0,
-				scrollbarWidth: 16,
-				offsetWidth: 0,
-				focus_vkey: -1,
-				clicked_vkey: -1,
-				virtualItems: {
-					renderData: [],
-					newItems: [],
-					replaceItemsIndex: 0
-				}
-			},
-			bodyVisable: false,
-			hiddenVerticalScroll: false,
-			bodyWidth: 0
-		};
+		return new VmData();
 	},
-	computed: {
-		getColumnsConfig: function ()
-		{
-			let _$this = this;
-			if (!_$this.columnsConfig)
-			{
-				return [];
-			}
-			let _unCheckedCount = -1;
-			let _defaultChecked = false;
-			let _onToggleSelected = function (checked)
-			{
-				//console.log('onCheckedChange', checked);
-				for (let _key in _cellSelectionDict)
-				{
-					_cellSelectionDict[_key].checked = checked;
-				}
-				_defaultChecked = checked;
-				if (checked)
-				{
-					_unCheckedCount = 0;
-				}
-				let _selection = getSelectionData(
-					_cellSelectionDict,
-					_$this.data,
-					_defaultChecked
-				);
-
-				if (checked)
-				{
-					_$this.$emit('on-select-all', _selection);
-				} else
-				{
-					_$this.$emit('on-select-all-cancel', _selection);
-				}
-				_$this.$emit('on-selection-change', _selection);
-			};
-
-			let _toggleSelectObject = {
-				checked: false,
-				onCheckedChange: _onToggleSelected,
-				index: -1
-			};
-
-			let _cellSelectionDict = {};
-			let _onCellCheckedChange = function (checked, index)
-			{
-				//console.log('_onCellCheckedChange', checked);
-				if (!checked)
-				{
-					_unCheckedCount++;
-				}
-				else
-				{
-					_unCheckedCount--;
-				}
-				let _selection = getSelectionData(
-					_cellSelectionDict,
-					_$this.data,
-					_defaultChecked
-				);
-				_$this.$emit(checked ? 'on-select' : 'on-select-cancel',
-					_selection,
-					JSON.parse(JSON.stringify(_$this.data[index])
-					));
-				_$this.$emit('on-selection-change', _selection);
-
-				_$this.$nextTick(
-					() =>
-					{
-						//vue 有循环检测, 用这方法跳出循环
-						_toggleSelectObject.checked = (_unCheckedCount == 0);
-						console.log(_toggleSelectObject.checked);
-					}
-				);
-			};
-			let _selection = {
-				title: '选择',
-				sortable: true,
-				width: 29,//右边框1px
-				disableDrag: true,
-				fixed: 'left',
-				renderHeader: function (h, params)
-				{
-					let _column = params.column;
-					let _index = params.index;
-					console.log(params);
-					return h(
-						SelectionComponent,
-						{
-							props: {
-								checkSyncObject: _toggleSelectObject
-							}
-						}
-					);
-				},
-				render: function (h, params)
-				{
-					let _row = params.row;
-					let _vkey = _row.__vkey;
-					//console.log('render _vkey=' + _vkey);
-					let _checkObject = _cellSelectionDict[_vkey];
-					if (!_checkObject)
-					{
-						_cellSelectionDict[_vkey] = _checkObject = {
-							checked: _defaultChecked,
-							onCheckedChange: _onCellCheckedChange,
-							index: _vkey
-						};
-					}
-					return h(
-						SelectionComponent,
-						{
-							props: {
-								checkSyncObject: _checkObject
-							}
-						}
-					);
-				},
-				key: 'status',
-				noNeedVertical: true,
-				enableEllipsis: true,
-			};
-			return [_selection, ... this.columnsConfig];
-
-			/**
-			 * 获取选择的数据
-			 */
-			function getSelectionData(
-				checkedDict: {},
-				data: any[],
-				defaultChecked: boolean
-			)
-			{
-				let _selectionIndexes = [];
-				let _unSelectionIndexes = [];
-				for (let _i in checkedDict)
-				{
-					let _index = parseInt(_i);
-					if (checkedDict[_i].checked)
-					{
-						_selectionIndexes.push(_index);
-					}
-					else
-					{
-						_unSelectionIndexes.push(_index);
-					}
-				}
-				if (defaultChecked)
-				{
-					//全选情况下,排除非选择项目
-					return JSON.parse(JSON.stringify(data.filter((data, index) => _unSelectionIndexes.indexOf(index) == -1)));
-				}
-				//非全选情况下,只获取选择项
-				return JSON.parse(JSON.stringify(data.filter((data, index) => _selectionIndexes.indexOf(index) > -1)));
-			}
-		},
-		getUnFixedColumnsConfig: function ()
-		{
-			return this.getColumnsConfig.filter(
-				m => m.fixed != 'right' && m.fixed != 'left'
-			);
-		},
-		getFixedLeftColumnsConfig: function ()
-		{
-			return this.getColumnsConfig.filter(
-				m => m.fixed == 'left'
-			);
-		},
-		getFixedRightColumnsConfig: function ()
-		{
-			return this.getColumnsConfig.filter(
-				m => m.fixed == 'right'
-			);
-		},
-		getFixedLeftWidth: function ()
-		{
-			return getColumnsWidth(this.getFixedLeftColumnsConfig);
-		},
-		getFixedRightWidth: function ()
-		{
-			return getColumnsWidth(this.getFixedRightColumnsConfig);
-		},
-		getUnFixedWidth: function ()
-		{
-			return getColumnsWidth(this.getUnFixedColumnsConfig);
-		},
-		getAllColumnsWidth: function ()
-		{
-			return getColumnsWidth(this.columnsConfig);
-		},
-		getBodyHeight: function ()
-		{
-			return this.data.length * this.recordHeight;
-		},
-
-		getTableWrapperStyle: function ()
-		{
-			//最外层嵌套元素样式
-			let _width = this.bodyVisable ? (this.tableWidth ? this.tableWidth : this.bodyWidth) : 0;
-			return {
-				width: 0 != _width ? `${_width}px` : 'inherit',
-				position: "relative"
-			};
-		},
-
-		getHeaderStyle: function ()
-		{
-			let _totalWidth = this.getUnFixedWidth + this.getFixedLeftWidth + this.getFixedRightWidth;
-			console.log(this.scrollSynclData.offsetWidth);
-			return {
-				width: (this.tableWidth ? `${this.tableWidth}px` : (this.bodyVisable ? `${this.bodyWidth - 18}px` : 'inherit')),
-				"overflow-x": "hidden",
-				"overflow-y": "hidden"
-			}
-
-			//return `${(this.scrollSynclData ? this.scrollSynclData.offsetWidth : this.tableWidth)}px`;
-		},
-		getHeaderColumnWidth: function ()
-		{
-			return `${(this.scrollSynclData ? this.scrollSynclData.offsetWidth : this.tableWidth) - this.scrollSynclData.scrollbarWidth - 4}px`;
-		},
-		getTableHeight: function ()
-		{
-			return this.bodyHeight + this.headerHeight;
-		},
-		getFixedRightClass: function ()
-		{
-			return this.hiddenVerticalScroll ? '' : 'c-table-fiexed-right';
-		},
-		getFixedRightStyle: function ()
-		{
-			let _height = this.getTableHeight;
-			if (!this.hiddenVerticalScroll)
-			{
-				_height = _height - this.scrollSynclData.scrollbarWidth + 2;
-			}
-			return {
-				top: `${0}px`,
-				right: `${this.scrollSynclData.scrollbarWidth + 1}px`,
-				width: `${this.getFixedRightWidth}px`,
-				height: `${_height}px`,
-				position: 'absolute',//顶层要用position: relative;
-				'background-color': 'ghostwhite',
-				"overflow-x": "hidden",
-				"overflow-y": "hidden",
-				'box-sizing': 'order-box'
-			};
-		},
-		getFixedLeftClass: function ()
-		{
-			return this.hiddenVerticalScroll ? '' : 'c-table-fiexed-left';
-		},
-		getFixedLeftStyle: function ()
-		{
-			let _height = 0;
-			if (this.hiddenVerticalScroll)
-			{
-				//为了显示左冻结列，右方的表格线条
-				_height = this.data.length * this.recordHeight;
-			}
-			else
-			{
-				_height = this.getTableHeight - this.scrollSynclData.scrollbarWidth + 2;
-			}
-			return {
-				'border-right': this.hiddenVerticalScroll ? '1px solid #dddddd' : '',
-				top: `${0}px`,
-				left: `${1}px`,
-				width: `${this.getFixedLeftWidth}px`,
-				height: `${_height}px`,
-				position: 'absolute',//顶层要用position: relative;
-				'background-color': 'ghostwhite',
-				"overflow-x": "hidden",
-				"overflow-y": "hidden",
-				'box-sizing': 'order-box'
-			};
-		},
-		getFloatRightHeaderStyle: function ()
-		{
-			console.log(`${this.headerHeight}px`);
-			return {
-				height: `${this.headerHeight}px`
-			};
-		}
-	},
-	methods: {
-		tableResize()
-		{
-			let _$this = this;
-			_$this.bodyWidth = _$this.$refs.tableWrapper.clientWidth;//tableHeader
-			if (0 == _$this.bodyWidth)
-			{
-				_$this.bodyWidth = _$this.$refs.tableWrapper.scrollWidth;
-			}
-			_$this.bodyWidth = 0 == _$this.bodyWidth ? 0 : (_$this.bodyWidth - 5);
-
-			console.log(_$this.bodyWidth);
-			let _getAllColumnsWidth = getColumnsDefaultWidth(_$this.columnsConfig);// _$this.getAllColumnsWidth;
-			let _getUnFixedWidth = _$this.getUnFixedWidth;
-			_$this.hiddenVerticalScroll = (_$this.bodyWidth > _getAllColumnsWidth);
-
-			let _defWidth = _$this.bodyWidth - _getAllColumnsWidth;
-			let _lessWidth = _defWidth;
-			for (let _c = 0; _c < _$this.columnsConfig.length; _c++)
-			{
-				let _col = _$this.columnsConfig[_c];
-				if (_col.fixed != 'right' && _col.fixed != 'left')
-				{
-					if (_$this.hiddenVerticalScroll)
-					{
-						//如果长度超过设定宽度，调整列宽度
-						let _w = parseInt(_col.cWidth ? _col.cWidth.replace('px', '') : _col.width);
-						let _w2 = parseInt(_w / _getUnFixedWidth * _defWidth);
-						_col.width = _w + (_lessWidth > _w2 ? _w2 : _lessWidth);
-						_lessWidth -= _w2;
-						_col.cWidth = `${_col.width}px`;
-					}
-					else
-					{
-						_col.cWidth = `${_col.defaultWidth}px`;
-					}
-				}
-			}
-
-
-			_$this.bodyVisable = !!_$this.$refs.tableHeader;
-		},
-		handleResize()
-		{
-			let _$this = this;
-			_$this.bodyVisable = false;
-			_$this.$nextTick(
-				() =>
-				{
-					_$this.tableResize();
-				}
-			);
-		}
-
-	},
+	computed: new VmComputed(),
+	methods: new VmMethods(),
 	mounted: function ()
 	{
 		let _$this = this;

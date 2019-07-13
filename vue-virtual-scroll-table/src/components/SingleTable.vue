@@ -92,11 +92,11 @@
         margin: 0;
     }
 
-        ul > li {
-            padding-left: 0;
-            margin: 0;
-            list-style: none;
-        }
+    ul > li {
+        padding-left: 0;
+        margin: 0;
+        list-style: none;
+    }
 
     .c-table-wrapper {
         width: inherit;

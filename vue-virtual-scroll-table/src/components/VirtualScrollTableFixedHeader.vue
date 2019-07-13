@@ -36,6 +36,18 @@
                 cIdKey: ID_NAME,
             };
         },
+        watch: {
+            columnsConfig: {
+                handler: function (
+                    config
+                )
+                {
+                    console.log('handler VirtualScrollTableFixedHeader columnsConfig');
+                },
+                immediate: true,
+                //deep: true,
+            }
+        },
         computed: {
             getHeaderStyle: function ()
             {
