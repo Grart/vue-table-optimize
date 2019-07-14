@@ -239,7 +239,7 @@ class VmData
 			newItems: [],
 			replaceItemsIndex: 0
 		}
-	};
+	} as ScrollSynclData;
 	cloneColumnsConfig: ColumnConfig[] = null;
 	bodyVisable = false;
 	hiddenVerticalScroll = false;
