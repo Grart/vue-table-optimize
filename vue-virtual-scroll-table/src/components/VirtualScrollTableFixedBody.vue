@@ -17,7 +17,7 @@
                         v-for='(column, index) in columnsConfig'
                         :key='index'
                         :columnKey='column.key'
-                        :title='record[column.key]'
+                        :title='column.key?record[column.key]:""'
                         :style='getColumnStyle(column)'>
                         <div class='c-table-body-column__container'>
                             <span v-if='!column.render'>{{record[column.key]}}</span>

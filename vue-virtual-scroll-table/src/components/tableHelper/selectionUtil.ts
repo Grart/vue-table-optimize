@@ -1,5 +1,5 @@
-//±í¸ñ¶àÑ¡ÁĞ
-//checkbox ×é¼ş
+ï»¿//è¡¨æ ¼å¤šé€‰åˆ—
+//checkbox ç»„ä»¶
 const SelectionCheckBox = {
 	name: 'SelectionCheckBox',
 	props: {
@@ -8,7 +8,7 @@ const SelectionCheckBox = {
 	data()
 	{
 		let _$this = this;
-		return _$this.checkSyncObject;//Ö±½Ó°ÑÊäÈëÊôĞÔ×ö°ó¶¨¶ÔÏñ°ó¶¨
+		return _$this.checkSyncObject;//ç›´æ¥æŠŠè¾“å…¥å±æ€§åšç»‘å®šå¯¹åƒç»‘å®š
 	},
 	render: function (h, params)
 	{
@@ -47,7 +47,7 @@ const SelectionCheckBox = {
 	}
 };
 
-//»ñÈ¡¹´Ñ¡Êı¾İ
+//è·å–å‹¾é€‰æ•°æ®
 function getSelectionData(
 	checkedDict: {},
 	data: any[],
@@ -70,10 +70,10 @@ function getSelectionData(
 	}
 	if (defaultChecked)
 	{
-		//È«Ñ¡Çé¿öÏÂ,ÅÅ³ı·ÇÑ¡ÔñÏîÄ¿
+		//å…¨é€‰æƒ…å†µä¸‹,æ’é™¤éé€‰æ‹©é¡¹ç›®
 		return JSON.parse(JSON.stringify(data.filter((data, index) => _unSelectionIndexes.indexOf(index) == -1)));
 	}
-	//·ÇÈ«Ñ¡Çé¿öÏÂ,Ö»»ñÈ¡Ñ¡ÔñÏî
+	//éå…¨é€‰æƒ…å†µä¸‹,åªè·å–é€‰æ‹©é¡¹
 	return JSON.parse(JSON.stringify(data.filter((data, index) => _selectionIndexes.indexOf(index) > -1)));
 }
 
@@ -154,9 +154,9 @@ export function generateSelectionColumn(
 		);
 	};
 	return {
-		title: 'Ñ¡Ôñ',
+		title: 'é€‰æ‹©',
 		sortable: true,
-		width: 29,//ÓÒ±ß¿ò1px
+		width: 29,//å³è¾¹æ¡†1px
 		disableDrag: true,
 		fixed: 'left',
 		renderHeader: function (h, params)
@@ -196,7 +196,7 @@ export function generateSelectionColumn(
 				}
 			);
 		},
-		key: 'status',
+		key: '',
 		noNeedVertical: true,
 		enableEllipsis: true,
 	};
