@@ -81,7 +81,8 @@ export function generateSelectionColumn(
 	vmthis
 )
 {
-	let _unCheckedCount = -1;
+	let _dataCount = vmthis.data ? vmthis.data.length : 0;
+	let _checkedCount = 0;
 	let _defaultChecked = false;
 	let _onToggleSelected = function (checked)
 	{
@@ -93,7 +94,11 @@ export function generateSelectionColumn(
 		_defaultChecked = checked;
 		if (checked)
 		{
-			_unCheckedCount = 0;
+			_checkedCount = _dataCount;
+		}
+		else
+		{
+			_checkedCount = 0;
 		}
 		let _selection = getSelectionData(
 			_cellSelectionDict,
@@ -121,13 +126,13 @@ export function generateSelectionColumn(
 	let _onCellCheckedChange = function (checked, index)
 	{
 		//console.log('_onCellCheckedChange', checked);
-		if (!checked)
+		if (checked)
 		{
-			_unCheckedCount++;
+			_checkedCount++;
 		}
 		else
 		{
-			_unCheckedCount--;
+			_checkedCount--;
 		}
 		let _selection = getSelectionData(
 			_cellSelectionDict,
@@ -143,7 +148,7 @@ export function generateSelectionColumn(
 		vmthis.$nextTick(
 			() =>
 			{
-				_toggleSelectObject.checked = (_unCheckedCount == 0);
+				_toggleSelectObject.checked = (_checkedCount == _dataCount);
 				console.log(_toggleSelectObject.checked);
 			}
 		);
