@@ -1,5 +1,5 @@
 //https://www.cnblogs.com/lee-xiumei/p/7992081.html
 {
-  "presets": [ "env" ],
+  "presets": [ "@babel/preset-env" ],
   "plugins": [ "transform-vue-jsx" ]
 }
