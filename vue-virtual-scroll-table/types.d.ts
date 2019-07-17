@@ -6,11 +6,15 @@ declare interface ColumnConfig
 	disableDrag: boolean
 	fixed: string
 	//getSortValue: (a: any) => void
-	renderHeader: (h: any, params: any) => any
+	renderHeader?: (h: any, params: any) => any
 	render: (h: any, params: any) => any
 	key: string
 	noNeedVertical: boolean
 	enableEllipsis: boolean
+	/*用于记录初始宽度**/
+	defaultWidth?: number & string
+	/*宽度样式字符 px **/
+	cWidth?: string
 }
 
 declare interface ScrollSynclData 
@@ -19,8 +23,8 @@ declare interface ScrollSynclData
 	scrollLeft: number
 	scrollbarWidth: number
 	offsetWidth: number
-	focus_vkey: number
-	clicked_vkey: number
+	hover_index: number
+	clicked_index: number
 	virtualItems: {
 		renderData: any[]
 		newItems?: any[]

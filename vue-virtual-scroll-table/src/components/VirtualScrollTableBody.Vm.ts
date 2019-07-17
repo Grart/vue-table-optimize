@@ -2,9 +2,12 @@ import RenderBody from './tableHelper/expand';
 import { VIRTUAL_REMAIN_COUNT } from './tableHelper/constant';
 import _ from 'lodash';
 import { calDomItemsHeight } from './tableHelper/tableUtil';
-type VmThis = VmProps & VmWatch & VmMethods & VmData & VmComputed;
+import Vue from 'vue'
+type VmThis = VmProps & VmWatch & VmMethods & VmData & VmComputed & Vue;
 class VmProps
 {
+	//主表体组件this
+	tableOwner = Object as any as Vue
 	hiddenVerticalScroll = Boolean as any as boolean;
 	columnsConfig = Array as any as any[];
 	data= Array as any as any[];
@@ -25,13 +28,35 @@ class VmWatch
 			val
 		)
 		{
-			this.virtualData = _.cloneDeep(val);
-			this.refreshRenderData();
+			let _$this = this;
+			_$this.renderData.splice(0, _$this.renderData.length);
+			_$this.scrollSynclData.clicked_index = _$this.scrollSynclData.hover_index = -1;
+			_$this.virtualData = _.cloneDeep(val);
+			_$this.refreshRenderData();
+			const _virtualScrollBody = _$this.$refs.virtualScrollBody as HTMLElement;
+			if (_virtualScrollBody)
+			{
+				_$this.$nextTick(
+					() =>
+					{
+						if (_virtualScrollBody.scrollTo)
+						{
+							_virtualScrollBody.scrollTo(0, 0);
+						}
+						else
+						{
+							//IE 下用这方法重置滚动条，能触发scroll事件
+							_virtualScrollBody.scrollTop = 0;
+						}
+					}
+				);
+			}
 		},
 		immediate: true,
 		deep: true,
 	}
 }
+
 class VmData
 {
 	constructor(
@@ -52,16 +77,17 @@ class VmData
 	renderItemsHeight: number;
 
 }
+
 class VmComputed
 {
 	getTableWrapperStyle = function (
 		this: VmThis
 		)
 	{
-		console.log(this.hiddenVerticalScroll);
+		console.log(this.unFixedWidth, this.fixedLeftWidth, this.fixedRightWidth);
 		return {
-			height: `${this.viewportHeight}px`,
-			width: `${this.viewportWidth}px`,
+			'height': `${this.viewportHeight}px`,
+			'width': `${this.viewportWidth}px`,
 			'overflow-x': this.hiddenVerticalScroll ? 'hidden' : 'scroll'//hidden
 
 		};
@@ -94,33 +120,36 @@ class VmMethods
 		record
 	)
 	{
-		let _vkey = record.__vkey;
-		this.scrollSynclData.clicked_vkey = _vkey;
-		console.log('click', _vkey, JSON.stringify(record));
-		this.$emit('on-row-click', JSON.parse(JSON.stringify(record)), _vkey);
+		let _$this = this;
+		let _index = record.__dataIndex;
+		_$this.scrollSynclData.clicked_index = _index;
+		"debug code";
+		console.log('click', _index, JSON.stringify(record));
+		"end debug code";
+		_$this.tableOwner && _$this.tableOwner.$emit('on-row-click', JSON.parse(JSON.stringify(record)), _index);
 	};
 	handleRowDblClick = function (
 		this: VmThis,
 		record
 	)
 	{
-		let _vkey = record.__vkey;
+		let _index = record.__dataIndex;
 		console.log('dblClick');
-		this.$emit('on-row-dblclick', JSON.parse(JSON.stringify(record)), _vkey);
+		this.tableOwner && this.tableOwner.$emit('on-row-dblclick', JSON.parse(JSON.stringify(record)), _index);
 	};
 	handleMouseIn = function (
 		this: VmThis,
 		vkey
 	)
 	{
-		this.scrollSynclData.focus_vkey = vkey;
+		this.scrollSynclData.hover_index = vkey;
 	};
 	handleMouseOut = function (
 		this: VmThis,
 		vkey
 	)
 	{
-		this.scrollSynclData.focus_vkey = -1;
+		this.scrollSynclData.hover_index = -1;
 	};
 	getColumnStyle = function (
 		this: VmThis,
@@ -138,32 +167,34 @@ class VmMethods
 		maxHeight
 	)
 	{
-		const minItemKey = minHeight / this.itemHeight;
-		const maxItemKey = maxHeight / this.itemHeight;
-		const startIndex = minItemKey > 0 ? minItemKey : -1;
-		const endIndex = maxItemKey > this.virtualData.length ? this.data.length : maxItemKey;
-		const renderData = [];
-		for (let index = startIndex + 1; index < endIndex; index++)
+		const _minItemKey = minHeight / this.itemHeight;
+		const _maxItemKey = maxHeight / this.itemHeight;
+		const _startIndex = _minItemKey > 0 ? _minItemKey : -1;
+		const _endIndex = _maxItemKey > this.virtualData.length ? this.data.length : _maxItemKey;
+		const _renderData = [];
+		for (let _index = _startIndex + 1; _index < _endIndex; _index++)
 		{
-			const item = this.virtualData[index];
-			const recordIndexHight = `${index * this.itemHeight}`;
-			item.__vkey = index;
-			item.translateY = `${recordIndexHight}px`;
-			renderData.push(item);
+			const _item = this.virtualData[_index];
+			const _recordIndexHight = `${_index * this.itemHeight}`;
+			_item.__dataIndex = _index;
+			_item.translateY = `${_recordIndexHight}px`;
+			_renderData.push(_item);
 		}
-		return renderData;
+		return _renderData;
 	};
 	getRowContainerStyle = function (
 		this: VmThis,
 		record
 	)
 	{
-		let _isHover = this.scrollSynclData.focus_vkey == record.__vkey
-			|| this.scrollSynclData.clicked_vkey == record.__vkey;
+		let _$this = this;
+		let _isChecked = _$this.scrollSynclData.clicked_index == record.__dataIndex;;
+		let _isHover = _isChecked || _$this.scrollSynclData.hover_index == record.__dataIndex;
 		let _color = _isHover ? "#ebf7ff" : "";
 		return {
-			transform: `translateY(${record.translateY})`,
-			height: `${this.itemHeight}px`,
+			'transform': `translateY(${record.translateY})`,
+			'box-shadow': _isHover ? '0px 2px 6px -2px rgba(0,0,0,.2)' : '',
+			'height': `${_$this.itemHeight}px`,
 			'background-color': _color,
 			'margin-top': _isHover ? "-1px" : "",
 			'border-top': _isHover ? "1px solid #dddddd" : ""//背景会挡住上一行的下边框显示
@@ -174,31 +205,31 @@ class VmMethods
 		newData
 	)
 	{
-		const newItems = [];
-		for (const newRecord of newData)
+		const _newItems = [];
+		for (const _newRecord of newData)
 		{
-			if (_.findIndex(this.renderData, { __vkey: newRecord.__vkey }) < 0)
+			if (_.findIndex(this.renderData, { __dataIndex: _newRecord.__dataIndex }) < 0)
 			{
-				newItems.push(newRecord);
+				_newItems.push(_newRecord);
 			}
 		}
-		return newItems;
+		return _newItems;
 	};
 	buildOutDateItems = function (
 		this: VmThis,
 		newData
 	)
 	{
-		const replaceItemsIndex = [];
-		for (let index = 0; index < this.renderData.length; index++)
+		const _replaceItemsIndex = [];
+		for (let _index = 0; _index < this.renderData.length; _index++)
 		{
-			const record = this.renderData[index];
-			if (_.findIndex(newData, { __vkey: record.__vkey }) < 0)
+			const _record = this.renderData[_index];
+			if (_.findIndex(newData, { __dataIndex: _record.__dataIndex }) < 0)
 			{
-				replaceItemsIndex.push(index);
+				_replaceItemsIndex.push(_index);
 			}
 		}
-		return replaceItemsIndex;
+		return _replaceItemsIndex;
 	};
 	refreshVirtualItems = function (
 		this: VmThis,
@@ -206,19 +237,23 @@ class VmMethods
 		replaceItemsIndex
 	)
 	{
-		if (newItems.length === this.renderData.length)
+		let _$this = this;
+		if (newItems.length === _$this.renderData.length)
 		{
-			this.renderData = newItems;
+			_$this.renderData = newItems;
 			return;
 		}
+		"debug code"
+		console.log('refreshVirtualItems', replaceItemsIndex, newItems)
+		"end debug code"
 		for (let index = 0; index < newItems.length; index++)
 		{
 			if (index < replaceItemsIndex.length)
 			{
-				this.$set(this.renderData, replaceItemsIndex[index], newItems[index]);
+				_$this.$set(_$this.renderData, replaceItemsIndex[index], newItems[index]);
 				continue;
 			}
-			this.renderData.push(newItems[index]);
+			_$this.renderData.push(newItems[index]);
 		}
 	};
 	updateRenderData = function (
@@ -226,48 +261,46 @@ class VmMethods
 		newData
 	)
 	{
-		let newItems = [];
-		let replaceItemsIndex = [];
-		if (this.renderData.length === 0)
+		let _$this = this;
+		let _newItems = [];
+		let _replaceItemsIndex = [];
+		if (_$this.renderData.length === 0)
 		{
-			this.renderData = newData;
+			_$this.renderData = newData;
 		}
 		else
 		{
-			newItems = this.buildNewItems(newData);
-			replaceItemsIndex = this.buildOutDateItems(newData);
-			this.refreshVirtualItems(newItems, replaceItemsIndex);
+			_newItems = _$this.buildNewItems(newData);
+			_replaceItemsIndex = _$this.buildOutDateItems(newData);
+			_$this.refreshVirtualItems(_newItems, _replaceItemsIndex);
 		}
-		this.scrollSynclData.virtualItems = { renderData: this.renderData };
-		//this.$emit(
-		//    'on-refresh-virtual-items',
-		//    this.renderData
-		//);
+		_$this.scrollSynclData.virtualItems = { renderData: _$this.renderData };
 	};
 	refreshRenderData = function (
 		this: VmThis
 		)
 	{
-		const virtualScrollBody = this.$refs.virtualScrollBody;
-		const scrollTop = virtualScrollBody ? virtualScrollBody.scrollTop : 0;
-		const scrollLeft = virtualScrollBody ? virtualScrollBody.scrollLeft : 0;
-		const [minItemHeight, maxItemHeight] = calDomItemsHeight(
-			this.itemHeight,
-			this.remainHeight,
-			this.viewportHeight,
-			this.renderItemsHeight,
-			scrollTop
+		let _$this = this;
+		const _virtualScrollBody = _$this.$refs.virtualScrollBody as HTMLElement;
+		const _scrollTop = _virtualScrollBody ? _virtualScrollBody.scrollTop : 0;
+		const _scrollLeft = _virtualScrollBody ? _virtualScrollBody.scrollLeft : 0;
+		const [_minItemHeight, _maxItemHeight] = calDomItemsHeight(
+			_$this.itemHeight,
+			_$this.remainHeight,
+			_$this.viewportHeight,
+			_$this.renderItemsHeight,
+			_scrollTop
 		);
-		this.updateRenderData(
-			this.buildRenderData(minItemHeight, maxItemHeight)
+		_$this.updateRenderData(
+			_$this.buildRenderData(_minItemHeight, _maxItemHeight)
 		);
-		this.scrollSynclData.scrollTop = scrollTop;
-		this.scrollSynclData.scrollLeft = scrollLeft;
-		this.scrollSynclData.scrollbarWidth = virtualScrollBody
+		_$this.scrollSynclData.scrollTop = _scrollTop;
+		_$this.scrollSynclData.scrollLeft = _scrollLeft;
+		_$this.scrollSynclData.scrollbarWidth = _virtualScrollBody
 			//https://www.cnblogs.com/panjun-Donet/articles/1294033.html
-			? (virtualScrollBody.offsetWidth - virtualScrollBody.clientWidth - 2 * virtualScrollBody.clientLeft)
+			? (_virtualScrollBody.offsetWidth - _virtualScrollBody.clientWidth - 2 * _virtualScrollBody.clientLeft)
 			: 16;
-		this.scrollSynclData.offsetWidth = virtualScrollBody ? virtualScrollBody.offsetWidth : (this.viewportWidth + 2);
+		_$this.scrollSynclData.offsetWidth = _virtualScrollBody ? _virtualScrollBody.offsetWidth : (_$this.viewportWidth + 2);
 
 	};
 	onVirtualScroll = function (
@@ -277,8 +310,6 @@ class VmMethods
 	{
 		let _$this = this;
 		window.requestAnimationFrame(_$this.refreshRenderData);
-
-
 		//if (!_$this.throttleVirtualScroll)
 		//{
 		//    _$this.throttleVirtualScroll = throttle(

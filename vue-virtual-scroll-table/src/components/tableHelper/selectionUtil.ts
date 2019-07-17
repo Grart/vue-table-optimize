@@ -52,7 +52,7 @@ function getSelectionData(
 	checkedDict: {},
 	data: any[],
 	defaultChecked: boolean
-)
+): any[]
 {
 	let _selectionIndexes = [];
 	let _unSelectionIndexes = [];
@@ -78,10 +78,13 @@ function getSelectionData(
 }
 
 export function generateSelectionColumn(
-	vmthis
+	vmThis,
+	//主表体组件this
+	tableOwner
 )
 {
-	let _dataCount = vmthis.data ? vmthis.data.length : 0;
+	let _dataCount = vmThis.data ? vmThis.data.length : 0;
+	let _cellSelectionDict = {};
 	let _checkedCount = 0;
 	let _defaultChecked = false;
 	let _onToggleSelected = function (checked)
@@ -100,20 +103,21 @@ export function generateSelectionColumn(
 		{
 			_checkedCount = 0;
 		}
-		let _selection = getSelectionData(
+		let _selectionArray = getSelectionData(
 			_cellSelectionDict,
-			vmthis.data,
+			vmThis.data,
 			_defaultChecked
 		);
 
 		if (checked)
 		{
-			vmthis.$emit('on-select-all', _selection);
-		} else
-		{
-			vmthis.$emit('on-select-all-cancel', _selection);
+			tableOwner && tableOwner.$emit('on-select-all', _selectionArray);
 		}
-		vmthis.$emit('on-selection-change', _selection);
+		else
+		{
+			tableOwner && tableOwner.$emit('on-select-all-cancel', _selectionArray);
+		}
+		tableOwner && tableOwner.$emit('on-selection-change', _selectionArray);
 	};
 
 	let _toggleSelectObject = {
@@ -122,7 +126,6 @@ export function generateSelectionColumn(
 		index: -1
 	};
 
-	let _cellSelectionDict = {};
 	let _onCellCheckedChange = function (checked, index)
 	{
 		//console.log('_onCellCheckedChange', checked);
@@ -134,18 +137,22 @@ export function generateSelectionColumn(
 		{
 			_checkedCount--;
 		}
-		let _selection = getSelectionData(
+		let _selectionArray = getSelectionData(
 			_cellSelectionDict,
-			vmthis.data,
+			vmThis.data,
 			_defaultChecked
 		);
-		vmthis.$emit(checked ? 'on-select' : 'on-select-cancel',
-			_selection,
-			JSON.parse(JSON.stringify(vmthis.data[index])
-			));
-		vmthis.$emit('on-selection-change', _selection);
+		tableOwner && tableOwner.$emit(
+			checked ? 'on-select' : 'on-select-cancel',
+			_selectionArray,
+			JSON.parse(JSON.stringify(vmThis.data[index]))
+		);
+		tableOwner && tableOwner.$emit(
+			'on-selection-change',
+			_selectionArray
+		);
 
-		vmthis.$nextTick(
+		vmThis.$nextTick(
 			() =>
 			{
 				_toggleSelectObject.checked = (_checkedCount == _dataCount);
@@ -176,15 +183,14 @@ export function generateSelectionColumn(
 		render: function (h, params)
 		{
 			let _row = params.row;
-			let _vkey = _row.__vkey;
-			//console.log('render _vkey=' + _vkey);
-			let _checkObject = _cellSelectionDict[_vkey];
+			let _index = _row.__dataIndex;
+			let _checkObject = _cellSelectionDict[_index];
 			if (!_checkObject)
 			{
-				_cellSelectionDict[_vkey] = _checkObject = {
+				_cellSelectionDict[_index] = _checkObject = {
 					checked: _defaultChecked,
 					onCheckedChange: _onCellCheckedChange,
-					index: _vkey
+					index: _index
 				};
 			}
 			return h(
@@ -199,5 +205,10 @@ export function generateSelectionColumn(
 		key: '',
 		noNeedVertical: true,
 		enableEllipsis: true,
+		getSelectionData: () => getSelectionData(
+			_cellSelectionDict,
+			vmThis.data,
+			_defaultChecked
+		)
 	};
 }

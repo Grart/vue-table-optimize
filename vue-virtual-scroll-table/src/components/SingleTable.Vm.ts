@@ -2,22 +2,31 @@
 import Vue from 'vue';
 import elementResizeDetectorMaker from 'element-resize-detector';
 
-import TableHeader from './SingleTableHeader';
-import TableBody from './SingleTableBody';
-import RequestAnimationFrameTableBody from './RequestAnimationFrameTableBody';
-import VirtualScrollTableBody from './VirtualScrollTableBody';
-import VirtualScrollTableFixed from './VirtualScrollTableFixed';
+import TableHeader from './SingleTableHeader.vue';
+import TableBody from './SingleTableBody.vue';
+import RequestAnimationFrameTableBody from './RequestAnimationFrameTableBody.vue';
+import VirtualScrollTableBody from './VirtualScrollTableBody.vue';
+import VirtualScrollTableFixed from './VirtualScrollTableFixed.vue';
 import { generateSelectionColumn } from './tableHelper/selectionUtil'
+import { generateRowNumberColumn } from './tableHelper/rowNumberUtil';
+
+interface SelectionColumnConfig extends ColumnConfig
+{
+	getSelectionData: () => any[]
+}
+
 /**
  * 计算列宽
  */
-function getColumnsWidth(columnsConfig)
+function getColumnsWidth(
+	columnsConfigArray
+)
 {
 	let _bodyWidth = 0;
-	let _cfg = columnsConfig;
-	for (let _c = 0; _c < _cfg.length; _c++)
+	let _cfgAry = columnsConfigArray;
+	for (let _c = 0; _c < _cfgAry.length; _c++)
 	{
-		let _col = _cfg[_c];
+		let _col = _cfgAry[_c];
 		let _columnWidth = parseInt(_col.cWidth ? _col.cWidth.replace('px', '') : _col.width);
 		_col.cWidth = `${_columnWidth}px`;
 		_bodyWidth += _columnWidth;
@@ -28,7 +37,8 @@ function getColumnsWidth(columnsConfig)
  * 计算默认列宽
  */
 function getAndInitColumnsDefaultWidth(
-	columnsConfig
+	columnsConfig,
+	tableWidth
 )
 {
 	let _bodyWidth = 0;
@@ -38,7 +48,11 @@ function getAndInitColumnsDefaultWidth(
 		let _col = _cfg[_c];
 		if (!_col.defaultWidth)
 		{
-			_col.defaultWidth = parseInt(_col.cWidth ? _col.cWidth.replace('px', '') : _col.width);
+			_col.defaultWidth = parseInt(_col.cWidth ? _col.cWidth.replace('px', '') : (_col.width ? _col.width : 0));
+			if (0 == _col.defaultWidth)
+			{
+				_col.defaultWidth = 85;//默认60
+			}
 			_col.cWidth = `${_col.defaultWidth}px`;
 		}
 		_bodyWidth += _col.defaultWidth;
@@ -47,13 +61,15 @@ function getAndInitColumnsDefaultWidth(
 }
 
 
-type VmThis = VmProps & VmWatch & VmMethods & VmData & VmComputed;
+type VmThis = VmProps & VmWatch & VmMethods & VmData & VmComputed & Vue;
 
 class VmProps
 {
+	//主表体组件this
+	tableOwner = Object as any as Object
 	columnsConfig = Array as any as ColumnConfig[]
 	data = Array as any as any[]
-	recordKey = String as any as number
+	recordKey = String as any as string
 	headerHeight = Number as any as number
 	bodyHeight = Number as any as number
 	tableWidth = Number as any as number
@@ -62,7 +78,12 @@ class VmProps
 		type: String,
 		default: 'c-table-header__default'
 	} as any as string
+	multiSelect = {
+		type: Boolean,
+		default: false
+	} as any as boolean
 }
+
 class VmComputed
 {
 	getUnFixedColumnsConfig = function (
@@ -105,6 +126,7 @@ class VmComputed
 		this: VmThis
 	)
 	{
+		console.log('getUnFixedWidth');
 		return getColumnsWidth(this.getUnFixedColumnsConfig);
 	} as any as number;
 	getAllColumnsWidth = function (
@@ -139,7 +161,7 @@ class VmComputed
 		let _totalWidth = this.getUnFixedWidth + this.getFixedLeftWidth + this.getFixedRightWidth;
 		console.log(this.scrollSynclData.offsetWidth);
 		return {
-			width: (this.tableWidth ? `${this.tableWidth}px` : (this.bodyVisable ? `${this.bodyWidth - 18}px` : 'inherit')),
+			'width': (this.tableWidth ? `${this.tableWidth}px` : (this.bodyVisable ? `${this.bodyWidth - 18}px` : 'inherit')),
 			"overflow-x": "hidden",
 			"overflow-y": "hidden"
 		}
@@ -222,6 +244,7 @@ class VmComputed
 			height: `${this.headerHeight}px`
 		};
 	} as any as Object;
+
 }
 
 class VmData
@@ -232,8 +255,8 @@ class VmData
 		scrollLeft: 0,
 		scrollbarWidth: 16,
 		offsetWidth: 0,
-		focus_vkey: -1,
-		clicked_vkey: -1,
+		hover_index: -1,
+		clicked_index: -1,
 		virtualItems: {
 			renderData: [],
 			newItems: [],
@@ -244,7 +267,8 @@ class VmData
 	bodyVisable = false;
 	hiddenVerticalScroll = false;
 	bodyWidth = 0;
-	selectionColumn: ColumnConfig = null;
+	selectionColumn: SelectionColumnConfig = null;
+	rowNumberColumn: ColumnConfig = null;
 }
 
 class VmWatch
@@ -256,19 +280,29 @@ class VmWatch
 		)
 		{
 			let _$this = this;
+			if (null == _$this.rowNumberColumn)
+			{
+				_$this.rowNumberColumn = generateRowNumberColumn(_$this, _$this.tableOwner);
+			}
 			if (!config || config.length == 0)
 			{
-				return _$this.cloneColumnsConfig = [];
+				_$this.cloneColumnsConfig = [_$this.rowNumberColumn];
 			}
-			console.log('handler columnsConfig', config);
 			if (null == _$this.selectionColumn)
 			{
 				//用临时变量的话会selectionColumn绑定到组件上会有异常
 				//（因为构建时, VmWatch进入了两次, 函数内的_toggleSelectObject和绑定到组件上的_toggleSelectObject不是同一对象），回头研究
-				_$this.selectionColumn = generateSelectionColumn(_$this);
+				_$this.selectionColumn = generateSelectionColumn(_$this, _$this.tableOwner);
 			}
-			return _$this.cloneColumnsConfig = [_$this.selectionColumn, ...config];
-
+			if (_$this.multiSelect)
+			{
+				_$this.cloneColumnsConfig = [_$this.rowNumberColumn, _$this.selectionColumn, ...config];
+			}
+			else
+			{
+				_$this.cloneColumnsConfig = [_$this.rowNumberColumn, ...config];
+			}
+			_$this.handleResize();
 			/**
 			 * 获取选择的数据
 			 */
@@ -284,16 +318,21 @@ class VmMethods
 		this: VmThis
 	)
 	{
+		console.log('tableResize');
 		//自适应列宽
 		let _$this = this;
-		_$this.bodyWidth = _$this.$refs.tableWrapper.clientWidth;//tableHeader
+		let _tableWraper = _$this.$refs.tableWrapper as HTMLElement;
+		_$this.bodyWidth = _tableWraper.clientWidth;//tableHeader
 		if (0 == _$this.bodyWidth)
 		{
-			_$this.bodyWidth = _$this.$refs.tableWrapper.scrollWidth;
+			_$this.bodyWidth = _tableWraper.scrollWidth;
 		}
 		_$this.bodyWidth = 0 == _$this.bodyWidth ? 0 : (_$this.bodyWidth - 5);
 
-		let _getAllColumnsWidth = getAndInitColumnsDefaultWidth(_$this.cloneColumnsConfig);// _$this.getAllColumnsWidth;
+		let _getAllColumnsWidth = getAndInitColumnsDefaultWidth(
+			_$this.cloneColumnsConfig,
+			_$this.bodyWidth
+		);// _$this.getAllColumnsWidth;
 		let _getUnFixedWidth = _$this.getUnFixedWidth;
 		_$this.hiddenVerticalScroll = (_$this.bodyWidth > _getAllColumnsWidth);
 
@@ -308,8 +347,8 @@ class VmMethods
 			if (_$this.hiddenVerticalScroll)
 			{
 				//如果长度超过设定宽度，调整列宽度
-				let _defaultWidth = parseInt(_col.defaultWidth);
-				let _rateWidth = parseInt(_defaultWidth / _getUnFixedWidth * _diffWidth);
+				let _defaultWidth: number = parseInt(_col.defaultWidth );
+				let _rateWidth = parseInt((_defaultWidth / _getUnFixedWidth * _diffWidth) as any as string);
 				_col.width = _defaultWidth + ((_lessWidth < _rateWidth || _cLast == _c) ? _lessWidth : _rateWidth);
 				_lessWidth -= _rateWidth;
 				_col.cWidth = `${_col.width}px`;
@@ -320,9 +359,14 @@ class VmMethods
 				_col.cWidth = `${_col.defaultWidth}px`;
 			}
 		}
-
-		console.log(_$this.cloneColumnsConfig);
-		_$this.bodyVisable = !!_$this.$refs.tableHeader;
+		//强制刷新computed依赖缓存
+		_$this.$set(_$this, 'cloneColumnsConfig', [..._$this.cloneColumnsConfig]);
+		_$this.$nextTick(
+			() =>
+			{
+				_$this.bodyVisable = !!_$this.$refs.tableHeader;
+			}
+		);
 	};
 
 	handleResize = function (

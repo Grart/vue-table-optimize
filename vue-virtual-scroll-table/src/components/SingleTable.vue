@@ -19,6 +19,7 @@
 
             <!--表格非固定列-->
             <virtual-scroll-table-body v-if="bodyVisable"
+                                       :table-owner="tableOwner"
                                        :hidden-vertical-scroll="hiddenVerticalScroll"
                                        :data='data'
                                        :record-key='recordKey'
@@ -33,7 +34,9 @@
             </virtual-scroll-table-body>
 
             <!--表格左固定列-->
-            <virtual-scroll-table-fixed :fixedStyle="getFixedLeftStyle"
+            <virtual-scroll-table-fixed v-if="bodyVisable"
+                                        :fixedStyle="getFixedLeftStyle"
+                                        :table-owner="tableOwner"
                                         :table-fiexed-class="getFixedLeftClass"
                                         :headerClass="headerClass"
                                         :virtual-items='scrollSynclData.virtualItems'
@@ -44,11 +47,14 @@
                                         :item-height='recordHeight'
                                         :body-height='getBodyHeight'
                                         :fixed-height='bodyHeight'
-                                        :fixed-width='getFixedLeftWidth'>
+                                        :fixed-width='getFixedLeftWidth'
+                                        :enable-select-style="true">
             </virtual-scroll-table-fixed>
 
             <!--表格右固定列-->
-            <virtual-scroll-table-fixed :fixedStyle="getFixedRightStyle"
+            <virtual-scroll-table-fixed v-if="bodyVisable"
+                                        :fixedStyle="getFixedRightStyle"
+                                        :table-owner="tableOwner"
                                         :table-fiexed-class="getFixedRightClass"
                                         :headerClass="headerClass"
                                         :virtual-items='scrollSynclData.virtualItems'

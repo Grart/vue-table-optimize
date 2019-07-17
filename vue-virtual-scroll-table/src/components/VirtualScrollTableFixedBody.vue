@@ -3,25 +3,30 @@
     <section class='c-table-wrapper__body-wrapper c-table-body-wrapper__virtual'
              :style='{height: getBodyHeight,width:getBodyWidth,"overflow-x":"hidden","overflow-y":"hidden","border": "1px solid #dddddd"}'>
         <div :style='getBodyWrapperStyle'>
-            <div class='c-table-body-container c-table-body-container__virtual'
-                 v-for='record in renderData'
-                 :key='record[recordKey]'
-                 :style='getRowContainerStyle(record)'
+            <div v-for='(record,rIndex) in renderData'
+                 class='c-table-body-container c-table-body-container__virtual'
+                 :key='recordKey?record[recordKey]:rIndex'
+                 :style='getRowWrapperStyle(record)'
                  @click="handleRowClick(record)"
                  @dblclick="handleRowDblClick(record)"
-                 @mouseenter.stop="handleMouseIn(record.__vkey)"
-                 @mouseleave.stop="handleMouseOut(record.__vkey)">
+                 @mouseenter.stop="handleMouseIn(record.__dataIndex)"
+                 @mouseleave.stop="handleMouseOut(record.__dataIndex)">
                 <ul class='c-table-body__record'
-                    :style='{height: getRecordHeight}'>
-                    <li class='c-table-body-column'
-                        v-for='(column, index) in columnsConfig'
+                    :style='getRowContainerStyle(record)'>
+                    <li v-for='(column, index) in columnsConfig'
+                        class='c-table-body-column'
                         :key='index'
                         :columnKey='column.key'
                         :title='column.key?record[column.key]:""'
                         :style='getColumnStyle(column)'>
                         <div class='c-table-body-column__container'>
                             <span v-if='!column.render'>{{record[column.key]}}</span>
-                            <render-body v-else :key='column.key' :row='record' :render='column.render' :index='index' :column='column'></render-body>
+                            <render-body v-else 
+                                         :key='column.key' 
+                                         :row='record' 
+                                         :render='column.render' 
+                                         :column-index='index' 
+                                         :column='column'></render-body>
                         </div>
                     </li>
                 </ul>
@@ -38,6 +43,8 @@
         name: 'VirtualScrollTableFixedBody',
         components: { RenderBody },
         props: {
+            //主表体组件this
+            tableOwner: Object,
             columnsConfig: Array,
             virtualItems: Object,
             recordKey: String,
@@ -45,7 +52,12 @@
             bodyHeight: Number,
             viewportHeight: Number,
             viewportWidth: Number,
-            scrollSynclData: Object
+            scrollSynclData: Object,
+            //是否启用选中样式
+            enableSelectStyle: {
+                type: Boolean,
+                default: false
+            },
         },
         watch: {
             virtualItems: {
@@ -94,24 +106,23 @@
         methods: {
             handleRowClick(record)
             {
-                let _vkey = record.__vkey;
-                this.scrollSynclData.clicked_vkey = _vkey;
-                //console.log('click', _vkey, JSON.stringify(record));
-                this.$emit('on-row-click', JSON.parse(JSON.stringify(record)), _vkey);
+                let _index = record.__dataIndex;
+                this.scrollSynclData.clicked_index = _index;
+                //console.log('click', _index, JSON.stringify(record));
+                this.tableOwner && this.tableOwner.$emit('on-row-click', JSON.parse(JSON.stringify(record)), _index);
             },
             handleRowDblClick(record)
             {
-                let _vkey = record.__vkey;
-                console.log('dblClick');
-                this.$emit('on-row-dblclick', JSON.parse(JSON.stringify(record)), _vkey);
+                let _index = record.__dataIndex;
+                this.tableOwner && this.tableOwner.$emit('on-row-dblclick', JSON.parse(JSON.stringify(record)), _index);
             },
             handleMouseIn(vkey)
             {
-                this.scrollSynclData.focus_vkey = vkey;
+                this.scrollSynclData.hover_index = vkey;
             },
             handleMouseOut(vkey)
             {
-                this.scrollSynclData.focus_vkey = -1;
+                this.scrollSynclData.hover_index = -1;
             },
             getColumnStyle: function (column)
             {
@@ -120,19 +131,44 @@
                     height: `${this.itemHeight}px`
                 };
             },
-            getRowContainerStyle: function (record)
+            getRowWrapperStyle: function (record)
             {
-                let _isHover = this.scrollSynclData.focus_vkey == record.__vkey
-                    || this.scrollSynclData.clicked_vkey == record.__vkey;
-                let _color = _isHover ? "#ebf7ff" : "";
+                let _$this = this;
+                let _isChecked = _$this.scrollSynclData.clicked_index == record.__dataIndex;;
+                let _isHover = _isChecked || _$this.scrollSynclData.hover_index == record.__dataIndex;
+                if (!_isHover)
+                {
+                    return {
+                        'transform': `translateY(${record.translateY})`,
+                        'height': `${_$this.itemHeight}px`,
+                    };
+                }
+                //指中行样式
                 return {
-                    transform: `translateY(${record.translateY})`,
-                    height: `${this.itemHeight}px`,
-                    'background-color': _color,
-                    'margin-top': _isHover ? "-1px" : "",
-                    'border-top': _isHover ? "1px solid #dddddd" : ""//背景会挡住上一行的下边框显示
+                    'transform': `translateY(${record.translateY})`,
+                    'height': `${_$this.itemHeight}px`,
+                    'box-shadow': '0px 2px 6px -2px rgba(0,0,0,.2)',
+                    'background-color': "#ebf7ff",
+                    'margin-top': "-1px",
+                    'border-top':  "1px solid #dddddd" //背景会挡住上一行的下边框显示
                 };
             },
+            getRowContainerStyle: function (record)
+            {
+                let _$this = this;
+                if (!_$this.enableSelectStyle)
+                {
+                    return {
+                        'height': _$this.getRecordHeight
+                    };
+                }
+                let _isChecked = _$this.scrollSynclData.clicked_index == record.__dataIndex;;
+                let _isHover = _isChecked || _$this.scrollSynclData.hover_index == record.__dataIndex;
+                return {
+                    'box-shadow': _isHover ? '-2px 2px 6px 0px rgba(0,0,0,.2)' : '',
+                    'height': _$this.getRecordHeight
+                };
+            }
         },
     };
 </script>

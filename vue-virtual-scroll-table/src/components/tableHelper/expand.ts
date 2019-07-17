@@ -4,7 +4,7 @@ export default {
 	props: {
 		row: Object,
 		render: Function,
-		index: Number,
+		columnIndex: Number,
 		column: {
 			type: Object,
 			default: null,
@@ -12,11 +12,14 @@ export default {
 	},
 	render: (h, ctx) =>
 	{
+		let _props = ctx.props;
+		let _row = _props.row;
 		const params = {
-			row: ctx.props.row,
-			index: ctx.props.index,
+			row: _row,
+			rowIndex: _row ? _row.__dataIndex : -1,
+			column: _props.column,
+			columnIndex: _props.columnIndex
 		};
-		if (ctx.props.column) params.column = ctx.props.column;
-		return ctx.props.render(h, params);
+		return _props.render(h, params);
 	},
 };

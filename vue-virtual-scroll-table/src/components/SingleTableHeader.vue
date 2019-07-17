@@ -14,7 +14,10 @@
                         :style='getColumnStyle(column)'>
                         <div class='c-table-header-column__container'>
                             <span v-if='!column.renderHeader'>{{column.title}}</span>
-                            <render-header v-else :render='column.renderHeader' :column='column' :index='index'></render-header>
+                            <render-header v-else 
+                                           :render='column.renderHeader' 
+                                           :column='column' 
+                                           :column-index='index'></render-header>
                         </div>
                     </li>
                 </ul>

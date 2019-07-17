@@ -1,6 +1,8 @@
 <template>
     <div>
         <single-table v-if='!isMultHeaderRows'
+                      ref="RefTable"
+                      :table-owner="owner"
                       :data='filterResult'
                       :columns-config='cloneColumnsConfig'
                       :record-key='recordKey'
@@ -9,13 +11,14 @@
                       :table-width='tableWidth'
                       :record-height='recordHeight'
                       :header-class='headerClass'
+                      :multi-select="multiSelect"
                       @on-selection-change="selectionChange"></single-table>
     </div>
 </template>
 
 <script lang="ts">
     import './tableHelper/requestAnimationFrameUtil';
-    import SingleTable from './SingleTable';
+    import SingleTable from './SingleTable.vue';
     import _ from 'lodash';
     import
     {
@@ -54,7 +57,7 @@
             },
             recordKey: {
                 type: String,
-                required: true,
+                required: false,
             },
             height: {
                 type: Number,
@@ -86,6 +89,11 @@
             },
 
             tableWidth: Number,
+            //是否启用多选
+            multiSelect: {
+                type: Boolean,
+                default: false
+            }
         },
         mounted()
         {
@@ -121,6 +129,7 @@
         data()
         {
             return {
+                owner: this,
                 filterResult: [],
                 cloneColumnsConfig: [],
                 cloneColumnsRow: [],
@@ -137,9 +146,13 @@
             },
         },
         methods: {
+            getSelectionData: function ()
+            {
+                console.log(this.$refs.RefTable.getSelectionData());
+            },
             selectionChange: function (selectionArray)
             {
-                console.log(selectionArray);
+                console.log(this.$refs.RefTable.getSelectionData());
             },
             buildColumnUUID: function (columnsConfig)
             {

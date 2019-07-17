@@ -19,7 +19,8 @@
                                          :body-height='bodyHeight'
                                          :viewport-height='fixedHeight'
                                          :viewport-width='fixedWidth'
-                                         :scroll-syncl-data="scrollSynclData">
+                                         :scroll-syncl-data="scrollSynclData"
+                                        :enable-select-style="enableSelectStyle">
         </virtual-scroll-table-fixed-body>
     </section>
 </template>
@@ -44,7 +45,12 @@
             bodyHeight: Number,
             fixedHeight: Number,
             fixedWidth: Number,
-            scrollSynclData: Object
+            scrollSynclData: Object,
+            //是否启用选中样式
+            enableSelectStyle: {
+                type: Boolean,
+                default: false
+            }
         },
         data()
         {

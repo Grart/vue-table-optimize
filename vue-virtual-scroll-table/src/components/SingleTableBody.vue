@@ -1,18 +1,23 @@
 <template>
     <section class='c-table-wrapper__body-wrapper' :style='{height: getBodyHeight}'>
         <div class='c-table-body-container'
-             v-for='record in data'
-             :key='record[recordKey]'>
+             v-for='(record,rIndex) in data'
+             :key='recordKey?record[recordKey]:rIndex'>
             <ul class='c-table-body__record'
                 :style='{height: getRecordHeight}'>
-                <li class='c-table-body-column'
-                    v-for='(column, index) in columnsConfig'
+                <li v-for='(column, index) in columnsConfig'
+                    class='c-table-body-column'
                     :key='index'
-                    :columnKey='column.key' :title='record[column.key]'
+                    :columnKey='column.key' 
+                    :title='record[column.key]'
                     :style='getColumnStyle(column)'>
                     <div class='c-table-body-column__container'>
                         <span v-if='!column.render'>{{record[column.key]}}</span>
-                        <render-body v-else :key='column.key' :row='record' :render='column.render' :index='index'></render-body>
+                        <render-body v-else 
+                                     :key='column.key' 
+                                     :row='record' 
+                                     :render='column.render' 
+                                     :column-index='index'></render-body>
                     </div>
                 </li>
             </ul>

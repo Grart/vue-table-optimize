@@ -4,17 +4,17 @@
              @scroll.passive='onVirtualScroll'
              :style='getTableWrapperStyle'>
         <!--用总宽度撑出正确的横向滚动条-->
-        <div :style='{width:(unFixedWidth+fixedLeftWidth + fixedRightWidth)+"px"}'>
+        <div :style='{width:(unFixedWidth + fixedLeftWidth + fixedRightWidth)+"px"}'>
             <!--表行-->
             <div :style='getBodyWrapperStyle'>
                 <div class='c-table-body-container c-table-body-container__virtual'
-                     v-for='record in renderData'
-                     :key='record[recordKey]'
+                     v-for='(record, rIndex) in renderData'
+                     :key='recordKey?record[recordKey]:rIndex'
                      :style='getRowContainerStyle(record)'
                      @click="handleRowClick(record)"
                      @dblclick="handleRowDblClick(record)"
-                     @mouseenter.stop="handleMouseIn(record.__vkey)"
-                     @mouseleave.stop="handleMouseOut(record.__vkey)">
+                     @mouseenter.stop="handleMouseIn(record.__dataIndex)"
+                     @mouseleave.stop="handleMouseOut(record.__dataIndex)">
                     <ul class='c-table-body__record'
                         :style='{height: getRecordHeight}'>
                         <li class='c-table-body-column'
@@ -25,7 +25,7 @@
                             :style='getColumnStyle(column)'>
                             <div class='c-table-body-column__container'>
                                 <span v-if='!column.render'>{{record[column.key]}}</span>
-                                <render-body v-else :key='column.key' :row='record' :render='column.render' :index='index' :column='column'></render-body>
+                                <render-body v-else :key='column.key' :row='record' :render='column.render' :column-index='index' :column='column'></render-body>
                             </div>
                         </li>
                     </ul>
