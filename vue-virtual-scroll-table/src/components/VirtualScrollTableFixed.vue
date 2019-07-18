@@ -13,6 +13,7 @@
         </section>
 
         <virtual-scroll-table-fixed-body :virtual-items='virtualItems'
+                                         :table-owner="tableOwner"
                                          :record-key='recordKey'
                                          :columns-config='columnsConfig'
                                          :item-height='itemHeight'
@@ -20,7 +21,7 @@
                                          :viewport-height='fixedHeight'
                                          :viewport-width='fixedWidth'
                                          :scroll-syncl-data="scrollSynclData"
-                                        :enable-select-style="enableSelectStyle">
+                                         :enable-select-style="enableSelectStyle">
         </virtual-scroll-table-fixed-body>
     </section>
 </template>
@@ -34,6 +35,8 @@
         name: 'VirtualScrollTableFixed',
         components: { VirtualScrollTableFixedHeader, VirtualScrollTableFixedBody },
         props: {
+            //主表体组件this
+            tableOwner : Object,
             headerClass: String,
             tableFiexedClass: String,
             fixedStyle: Object,

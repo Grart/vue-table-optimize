@@ -12,7 +12,6 @@ const RowNumberCell = {
 	},
 	render: function (h, params)
 	{
-		console.log(params);
 		let _$this = this;
 		return h(
 			"div",

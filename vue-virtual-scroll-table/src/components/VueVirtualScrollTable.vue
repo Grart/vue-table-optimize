@@ -11,7 +11,8 @@
                       :table-width='tableWidth'
                       :record-height='recordHeight'
                       :header-class='headerClass'
-                      :multi-select="multiSelect"
+                      :multi-selection="multiSelection"
+                      :init-row-selection="initRowSelection"
                       @on-selection-change="selectionChange"></single-table>
     </div>
 </template>
@@ -34,6 +35,8 @@
         components: { SingleTable },
         name: 'VueVirtualScrollTable',
         props: {
+            /*多选模式下用于初始化勾选状态*/
+            initRowSelection: Function,
             columnsConfig: {
                 type: Array,
                 default()
@@ -90,7 +93,7 @@
 
             tableWidth: Number,
             //是否启用多选
-            multiSelect: {
+            multiSelection: {
                 type: Boolean,
                 default: false
             }
@@ -148,7 +151,7 @@
         methods: {
             getSelectionData: function ()
             {
-                console.log(this.$refs.RefTable.getSelectionData());
+                return this.$refs.RefTable.getSelectionData();
             },
             selectionChange: function (selectionArray)
             {

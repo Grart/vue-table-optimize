@@ -126,16 +126,17 @@ class VmMethods
 		"debug code";
 		console.log('click', _index, JSON.stringify(record));
 		"end debug code";
-		_$this.tableOwner && _$this.tableOwner.$emit('on-row-click', JSON.parse(JSON.stringify(record)), _index);
+		_$this.tableOwner.$emit('on-row-click', JSON.parse(JSON.stringify(record)), _index);
 	};
 	handleRowDblClick = function (
 		this: VmThis,
 		record
 	)
 	{
+		let _$this = this;
 		let _index = record.__dataIndex;
 		console.log('dblClick');
-		this.tableOwner && this.tableOwner.$emit('on-row-dblclick', JSON.parse(JSON.stringify(record)), _index);
+		_$this.tableOwner.$emit('on-row-dblclick', JSON.parse(JSON.stringify(record)), _index);
 	};
 	handleMouseIn = function (
 		this: VmThis,
@@ -182,7 +183,7 @@ class VmMethods
 		}
 		return _renderData;
 	};
-	getRowContainerStyle = function (
+	getRowWrapperStyle = function (
 		this: VmThis,
 		record
 	)
@@ -198,6 +199,16 @@ class VmMethods
 			'background-color': _color,
 			'margin-top': _isHover ? "-1px" : "",
 			'border-top': _isHover ? "1px solid #dddddd" : ""//背景会挡住上一行的下边框显示
+		};
+	};
+	getRowContainerStyle = function (record)
+	{
+		let _$this = this;
+		let _isChecked = _$this.scrollSynclData.clicked_index == record.__dataIndex;;
+		let _isHover = _isChecked || _$this.scrollSynclData.hover_index == record.__dataIndex;
+		return {
+			'box-shadow': _isHover ? '0px 2px 6px 0px rgba(0,0,0,.2)' : '',
+			'height': _$this.getRecordHeight
 		};
 	};
 	buildNewItems = function (

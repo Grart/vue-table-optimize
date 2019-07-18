@@ -10,13 +10,13 @@
                 <div class='c-table-body-container c-table-body-container__virtual'
                      v-for='(record, rIndex) in renderData'
                      :key='recordKey?record[recordKey]:rIndex'
-                     :style='getRowContainerStyle(record)'
+                     :style='getRowWrapperStyle(record)'
                      @click="handleRowClick(record)"
                      @dblclick="handleRowDblClick(record)"
                      @mouseenter.stop="handleMouseIn(record.__dataIndex)"
                      @mouseleave.stop="handleMouseOut(record.__dataIndex)">
                     <ul class='c-table-body__record'
-                        :style='{height: getRecordHeight}'>
+                        :style='getRowContainerStyle(record)'>
                         <li class='c-table-body-column'
                             v-for='(column, index) in columnsConfig'
                             :key='index'

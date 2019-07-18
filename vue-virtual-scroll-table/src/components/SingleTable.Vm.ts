@@ -9,10 +9,15 @@ import VirtualScrollTableBody from './VirtualScrollTableBody.vue';
 import VirtualScrollTableFixed from './VirtualScrollTableFixed.vue';
 import { generateSelectionColumn } from './tableHelper/selectionUtil'
 import { generateRowNumberColumn } from './tableHelper/rowNumberUtil';
+import { fail } from 'assert';
 
 interface SelectionColumnConfig extends ColumnConfig
 {
 	getSelectionData: () => any[]
+	toggleSelectObject: {
+		checked: boolean
+	}
+	cellSelectionDict: Map<string, {checked: boolean}>
 }
 
 /**
@@ -78,10 +83,13 @@ class VmProps
 		type: String,
 		default: 'c-table-header__default'
 	} as any as string
-	multiSelect = {
+	multiSelection = {
 		type: Boolean,
 		default: false
 	} as any as boolean
+
+  /*多选模式下用于初始化勾选状态*/
+	initRowSelection = Function
 }
 
 class VmComputed
@@ -184,7 +192,8 @@ class VmComputed
 		this: VmThis
 	)
 	{
-		return this.hiddenVerticalScroll ? '' : 'c-table-fiexed-right';
+		return  'c-table-fiexed-right';
+		//return this.hiddenVerticalScroll ? '' : 'c-table-fiexed-right';
 	} as any as string;
 	getFixedRightStyle = function (
 		this: VmThis
@@ -196,12 +205,12 @@ class VmComputed
 			_height = _height - this.scrollSynclData.scrollbarWidth + 2;
 		}
 		return {
-			top: `${0}px`,
-			right: `${this.scrollSynclData.scrollbarWidth + 1}px`,
-			width: `${this.getFixedRightWidth}px`,
-			height: `${_height}px`,
-			position: 'absolute',//顶层要用position: relative;
-			'background-color': 'ghostwhite',
+			'top': `${0}px`,
+			'right': `${this.scrollSynclData.scrollbarWidth + 1}px`,
+			'width': `${this.getFixedRightWidth}px`,
+			'height': `${_height}px`,
+			'position': 'absolute',//顶层要用position: relative;
+			'background-color': '#fff',
 			"overflow-x": "hidden",
 			"overflow-y": "hidden",
 			'box-sizing': 'order-box'
@@ -211,7 +220,8 @@ class VmComputed
 		this: VmThis
 	)
 	{
-		return this.hiddenVerticalScroll ? '' : 'c-table-fiexed-left';
+		return  'c-table-fiexed-left';
+		//return this.hiddenVerticalScroll ? '' : 'c-table-fiexed-left';
 	} as any as string;
 	getFixedLeftStyle = function (
 		this: VmThis
@@ -224,12 +234,12 @@ class VmComputed
 		}
 		return {
 			'border-right': this.hiddenVerticalScroll ? '1px solid #dddddd' : '',
-			top: `${0}px`,
-			left: `${1}px`,
-			width: `${this.getFixedLeftWidth}px`,
-			height: `${_height}px`,
-			position: 'absolute',//顶层要用position: relative;
-			'background-color': 'ghostwhite',
+			'top': `${0}px`,
+			'left': `${1}px`,
+			'width': `${this.getFixedLeftWidth}px`,
+			'height': `${_height}px`,
+			'position': 'absolute',//顶层要用position: relative;
+			'background-color': '#fff',
 			"overflow-x": "hidden",
 			"overflow-y": "hidden",
 			'box-sizing': 'order-box'
@@ -292,9 +302,12 @@ class VmWatch
 			{
 				//用临时变量的话会selectionColumn绑定到组件上会有异常
 				//（因为构建时, VmWatch进入了两次, 函数内的_toggleSelectObject和绑定到组件上的_toggleSelectObject不是同一对象），回头研究
-				_$this.selectionColumn = generateSelectionColumn(_$this, _$this.tableOwner);
+				_$this.selectionColumn = generateSelectionColumn(
+					_$this,
+					_$this.tableOwner
+				);
 			}
-			if (_$this.multiSelect)
+			if (_$this.multiSelection)
 			{
 				_$this.cloneColumnsConfig = [_$this.rowNumberColumn, _$this.selectionColumn, ...config];
 			}
@@ -309,11 +322,67 @@ class VmWatch
 		},
 		immediate: true,
 		//deep: true,
-	}
+	};
+
+	data = {
+		handler: function (
+			this: VmThis,
+			val
+		)
+		{
+			let _$this = this;
+			if ( _$this.selectionColumn)
+			{
+				let _cellDict = _$this.selectionColumn.cellSelectionDict;
+				for (let _index in _cellDict)
+				{
+					_cellDict[_index].checked = false;
+				}
+				if (val && val.length > 0)
+				{
+					let _checkedCount = 0;
+					for (let _index = 0; _index < val.length; _index++)
+					{
+						let _cellObject = _cellDict[_index];
+						if (!_cellObject)
+						{
+							_cellDict[_index] = _cellObject = {};
+						}
+						if (_$this.initRowSelection)
+						{
+							_cellObject.checked = _$this.initRowSelection(val[_index]);
+						}
+						else
+						{
+							_cellObject.checked = false;
+						}
+						if (_cellObject.checked)
+						{
+							_checkedCount++;
+						}
+					}
+					//判断全选
+					_$this.selectionColumn.toggleSelectObject.checked = _checkedCount == val.length;
+				}
+				else
+				{
+					_$this.selectionColumn.toggleSelectObject.checked = false;
+				}
+			}
+		},
+		immediate: true,
+		deep: true,
+	};
 }
 
 class VmMethods
 {
+	getSelectionData = function (
+		this: VmThis
+	)
+	{
+		return this.selectionColumn.getSelectionData();
+	};
 	tableResize = function (
 		this: VmThis
 	)

@@ -83,10 +83,19 @@ export function generateSelectionColumn(
 	tableOwner
 )
 {
+	console.log('generateSelectionColumn');
 	let _dataCount = vmThis.data ? vmThis.data.length : 0;
 	let _cellSelectionDict = {};
 	let _checkedCount = 0;
 	let _defaultChecked = false;
+
+
+	let _selectionGeter = () => getSelectionData(
+		_cellSelectionDict,
+		vmThis.data,
+		_defaultChecked
+	);
+
 	let _onToggleSelected = function (checked)
 	{
 		//console.log('onCheckedChange', checked);
@@ -103,21 +112,16 @@ export function generateSelectionColumn(
 		{
 			_checkedCount = 0;
 		}
-		let _selectionArray = getSelectionData(
-			_cellSelectionDict,
-			vmThis.data,
-			_defaultChecked
-		);
 
 		if (checked)
 		{
-			tableOwner && tableOwner.$emit('on-select-all', _selectionArray);
+			tableOwner.$emit('on-select-all', _selectionGeter);
 		}
 		else
 		{
-			tableOwner && tableOwner.$emit('on-select-all-cancel', _selectionArray);
+			tableOwner.$emit('on-select-all-cancel', _selectionGeter);
 		}
-		tableOwner && tableOwner.$emit('on-selection-change', _selectionArray);
+		tableOwner.$emit('on-selection-change', _selectionGeter);
 	};
 
 	let _toggleSelectObject = {
@@ -137,33 +141,28 @@ export function generateSelectionColumn(
 		{
 			_checkedCount--;
 		}
-		let _selectionArray = getSelectionData(
-			_cellSelectionDict,
-			vmThis.data,
-			_defaultChecked
-		);
-		tableOwner && tableOwner.$emit(
+		 tableOwner.$emit(
 			checked ? 'on-select' : 'on-select-cancel',
-			_selectionArray,
+			_selectionGeter,
 			JSON.parse(JSON.stringify(vmThis.data[index]))
 		);
-		tableOwner && tableOwner.$emit(
+		console.log('on-selection-change');
+		tableOwner.$emit(
 			'on-selection-change',
-			_selectionArray
+			_selectionGeter
 		);
 
 		vmThis.$nextTick(
 			() =>
 			{
 				_toggleSelectObject.checked = (_checkedCount == _dataCount);
-				console.log(_toggleSelectObject.checked);
 			}
 		);
 	};
 	return {
 		title: '选择',
 		sortable: true,
-		width: 29,//右边框1px
+		width: 31,//右边框1px
 		disableDrag: true,
 		fixed: 'left',
 		renderHeader: function (h, params)
@@ -188,11 +187,13 @@ export function generateSelectionColumn(
 			if (!_checkObject)
 			{
 				_cellSelectionDict[_index] = _checkObject = {
-					checked: _defaultChecked,
-					onCheckedChange: _onCellCheckedChange,
-					index: _index
+					checked: _defaultChecked
+					//onCheckedChange: _onCellCheckedChange,
+					//index: _index
 				};
 			}
+			_checkObject.onCheckedChange = _onCellCheckedChange;
+			_checkObject.index = _index;
 			return h(
 				SelectionCheckBox,
 				{
@@ -209,6 +210,8 @@ export function generateSelectionColumn(
 			_cellSelectionDict,
 			vmThis.data,
 			_defaultChecked
-		)
+		),
+		toggleSelectObject: _toggleSelectObject,
+		cellSelectionDict: _cellSelectionDict
 	};
 }

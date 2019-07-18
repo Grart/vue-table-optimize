@@ -16,7 +16,7 @@ export default {
 		let _row = _props.row;
 		const params = {
 			row: _row,
-			rowIndex: _row ? _row.__dataIndex : -1,
+			index: _row ? _row.__dataIndex : -1,//ºÊ»›‘≠ Ù–‘
 			column: _props.column,
 			columnIndex: _props.columnIndex
 		};

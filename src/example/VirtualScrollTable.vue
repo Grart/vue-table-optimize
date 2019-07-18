@@ -1,15 +1,19 @@
 <template>
     <div>
         <!--<vue-virtual-scroll-table :columns-config='tableTitle'
-                      :data='result'
-                      :table-width="1000"
-                      render-type='VIRTUAL'
-                      record-key='_id'
-                      header-class='header-title__virtual'></vue-virtual-scroll-table>-->
+                  :data='result'
+                  :table-width="1000"
+                  render-type='VIRTUAL'
+                  record-key='_id'
+                  header-class='header-title__virtual'></vue-virtual-scroll-table>-->
         <vue-virtual-scroll-table :columns-config='tableTitle'
+                                  ref="RefTable"
+                                  :multi-selection="true"
                                   :data='result'
                                   record-key='_id'
-                                  header-class='header-title__virtual'></vue-virtual-scroll-table>
+                                  header-class='header-title__virtual'
+                                  @on-selection-change="selectionChange">
+        </vue-virtual-scroll-table>
     </div>
 </template>
 
@@ -37,6 +41,7 @@
         displayColor,
         displayDelayContent,
     } from './util/renderUtil';
+import { type } from 'os';
 
     const DESC = 'desc';
     const ASC = 'asc';
@@ -218,6 +223,11 @@
             };
         },
         methods: {
+            selectionChange: function (selectionArray)
+            {
+                console.log(typeof selectionArray =='function' ? selectionArray() : selectionArray);
+                console.log(this.$refs.RefTable.getSelectionData());
+            },
             getDeviationsValue: function (a, dir)
             {
                 if (a === NO_MATCH_STOP)

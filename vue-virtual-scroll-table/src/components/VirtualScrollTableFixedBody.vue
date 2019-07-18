@@ -109,12 +109,12 @@
                 let _index = record.__dataIndex;
                 this.scrollSynclData.clicked_index = _index;
                 //console.log('click', _index, JSON.stringify(record));
-                this.tableOwner && this.tableOwner.$emit('on-row-click', JSON.parse(JSON.stringify(record)), _index);
+                this.tableOwner.$emit('on-row-click', JSON.parse(JSON.stringify(record)), _index);
             },
             handleRowDblClick(record)
             {
                 let _index = record.__dataIndex;
-                this.tableOwner && this.tableOwner.$emit('on-row-dblclick', JSON.parse(JSON.stringify(record)), _index);
+                this.tableOwner.$emit('on-row-dblclick', JSON.parse(JSON.stringify(record)), _index);
             },
             handleMouseIn(vkey)
             {
@@ -156,16 +156,17 @@
             getRowContainerStyle: function (record)
             {
                 let _$this = this;
-                if (!_$this.enableSelectStyle)
-                {
-                    return {
-                        'height': _$this.getRecordHeight
-                    };
-                }
+                //不分左右了,取消 enableSelectStyle 判断
+                //if (!_$this.enableSelectStyle)
+                //{
+                //    return {
+                //        'height': _$this.getRecordHeight
+                //    };
+                //}
                 let _isChecked = _$this.scrollSynclData.clicked_index == record.__dataIndex;;
                 let _isHover = _isChecked || _$this.scrollSynclData.hover_index == record.__dataIndex;
                 return {
-                    'box-shadow': _isHover ? '-2px 2px 6px 0px rgba(0,0,0,.2)' : '',
+                    'box-shadow': _isHover ? '0px 2px 6px 0px rgba(0,0,0,.2)' : '',
                     'height': _$this.getRecordHeight
                 };
             }
