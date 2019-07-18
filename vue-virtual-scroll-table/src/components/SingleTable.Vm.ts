@@ -377,6 +377,10 @@ class VmWatch
 
 class VmMethods
 {
+	hasFooterSlot=function(){
+		console.log(this.$slots);
+		return this.$slots.footer !== undefined;
+	};
 	getSelectionData = function (
 		this: VmThis
 	)

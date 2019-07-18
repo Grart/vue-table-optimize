@@ -6,13 +6,19 @@
                   render-type='VIRTUAL'
                   record-key='_id'
                   header-class='header-title__virtual'></vue-virtual-scroll-table>-->
-        <vue-virtual-scroll-table :columns-config='tableTitle'
+        <vue-virtual-scroll-table :columns='tableTitle'
                                   ref="RefTable"
                                   :multi-selection="true"
                                   :data='result'
                                   record-key='_id'
                                   header-class='header-title__virtual'
                                   @on-selection-change="selectionChange">
+            <p slot="footer">
+                <span style="margin-right:32px;">开票金额汇总:111</span>
+                <span style="margin-right:32px;">开票税额汇总:333</span>
+                <span style="margin-right:32px;">价税合计汇总:444</span>
+                <span style="margin-right:32px;">发票数量汇总:555</span>
+            </p>
         </vue-virtual-scroll-table>
     </div>
 </template>

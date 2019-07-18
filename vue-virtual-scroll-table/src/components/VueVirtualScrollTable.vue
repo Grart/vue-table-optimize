@@ -13,7 +13,13 @@
                       :header-class='headerClass'
                       :multi-selection="multiSelection"
                       :init-row-selection="initRowSelection"
-                      @on-selection-change="selectionChange"></single-table>
+                      @on-selection-change="selectionChange">
+                      
+   
+                <template slot="footer" v-if="hasFooterSlot()">
+                    <slot name="footer"></slot>
+                </template>
+        </single-table>
     </div>
 </template>
 
@@ -35,9 +41,9 @@
         components: { SingleTable },
         name: 'VueVirtualScrollTable',
         props: {
-            /*¶àÑ¡Ä£Ê½ÏÂÓÃÓÚ³õÊ¼»¯¹´Ñ¡×´Ì¬*/
+            /*å¤šé€‰æ¨¡å¼ä¸‹ç”¨äºåˆå§‹åŒ–å‹¾é€‰çŠ¶æ€*/
             initRowSelection: Function,
-            columnsConfig: {
+            columns: {
                 type: Array,
                 default()
                 {
@@ -92,7 +98,7 @@
             },
 
             tableWidth: Number,
-            //ÊÇ·ñÆôÓÃ¶àÑ¡
+            //æ˜¯å¦å¯ç”¨å¤šé€‰
             multiSelection: {
                 type: Boolean,
                 default: false
@@ -110,7 +116,8 @@
                 },
                 immediate: true,
             },
-            columnsConfig: {
+            //columnsConfig
+            columns: {
                 handler: function (val)
                 {
                     const cloneColumnsConfig = _.cloneDeep(val);
@@ -142,13 +149,17 @@
         computed: {
             isMultHeaderRows: function ()
             {
-                return _.find(this.columnsConfig, function (column)
+                return _.find(this.columns, function (column)
                 {
                     return column.children;
                 });
             },
         },
         methods: {
+            hasFooterSlot:function(){
+                console.log(this.$slots);
+                return this.$slots.footer !== undefined;
+            },
             getSelectionData: function ()
             {
                 return this.$refs.RefTable.getSelectionData();

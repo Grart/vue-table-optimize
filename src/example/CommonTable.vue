@@ -1,6 +1,6 @@
 <template>
     <div>
-        <vue-table-optimization :columns-config='tableTitle'
+        <vue-table-optimization :columns='tableTitle'
                                 :data='result'
                                 record-key='_id'></vue-table-optimization>
     </div>

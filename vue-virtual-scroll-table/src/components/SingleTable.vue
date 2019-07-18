@@ -69,6 +69,12 @@
             </virtual-scroll-table-fixed>
 
         </article>
+
+        <div v-if="hasFooterSlot()"
+                class='c-table-footer'
+                :style='getTableWrapperStyle'>
+                <slot name="footer"></slot>
+        </div>
     </div>
 </template>
 
@@ -80,6 +86,12 @@
     @import "../styles/iconfont.css";
 </style>
 <style>
+.c-table-footer{
+    height:35px;
+    line-height:48px;
+    border-bottom:1px 
+    solid #e8eaec;
+}
 
     .c-table-fiexed-right,
     .c-table-fiexed-right:after,
