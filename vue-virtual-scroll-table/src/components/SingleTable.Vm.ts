@@ -9,7 +9,6 @@ import VirtualScrollTableBody from './VirtualScrollTableBody.vue';
 import VirtualScrollTableFixed from './VirtualScrollTableFixed.vue';
 import { generateSelectionColumn } from './tableHelper/selectionUtil'
 import { generateRowNumberColumn } from './tableHelper/rowNumberUtil';
-import { fail } from 'assert';
 
 interface SelectionColumnConfig extends ColumnConfig
 {
@@ -90,6 +89,7 @@ class VmProps
 
   /*多选模式下用于初始化勾选状态*/
 	initRowSelection = Function
+	loading = Boolean
 }
 
 class VmComputed
@@ -157,8 +157,19 @@ class VmComputed
 		//最外层嵌套元素样式
 		let _width = this.bodyVisable ? (this.tableWidth ? this.tableWidth : this.bodyWidth) : 0;
 		return {
-			width: 0 != _width ? `${_width}px` : 'inherit',
-			position: "relative"
+			'width': 0 != _width ? `${_width}px` : 'inherit',
+			'position': "relative"
+		};
+	} as any as Object;
+
+	getTableFooterStyle = function (
+		this: VmThis
+	)
+	{
+		//最外层嵌套元素样式
+		let _width = this.bodyVisable ? (this.tableWidth ? this.tableWidth : this.bodyWidth) : 0;
+		return {
+			width: 0 != _width ? `${_width}px` : 'inherit'
 		};
 	} as any as Object;
 
@@ -330,7 +341,9 @@ class VmWatch
 			val
 		)
 		{
+			console.log('handler data');
 			let _$this = this;
+			_$this.scrollSynclData.clicked_index = _$this.scrollSynclData.hover_index = -1;
 			if ( _$this.selectionColumn)
 			{
 				let _cellDict = _$this.selectionColumn.cellSelectionDict;
@@ -377,9 +390,18 @@ class VmWatch
 
 class VmMethods
 {
+	clickCurrentRow = function (
+		this: VmThis,
+		index
+	)
+	{
+		let _$this = this;
+		_$this.scrollSynclData.clicked_index = index;
+		_$this.tableOwner.$emit('on-row-click', JSON.parse(JSON.stringify(_$this.data[index])), index);
+	};
 	hasFooterSlot=function(){
-		console.log(this.$slots);
-		return this.$slots.footer !== undefined;
+		let _$this = this;
+		return _$this.$slots.footer !== undefined;
 	};
 	getSelectionData = function (
 		this: VmThis
@@ -469,7 +491,7 @@ export default {
 	name: 'SingleTable',
 	props: new VmProps(),
 	watch: new VmWatch(),
-	data()
+	data(this:VmThis)
 	{
 		return new VmData();
 	},

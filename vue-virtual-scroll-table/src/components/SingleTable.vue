@@ -68,11 +68,14 @@
                                         :fixed-width='getFixedRightWidth'>
             </virtual-scroll-table-fixed>
 
+            <div v-show="loading"
+                 :style='{height:getTableHeight+"px","position": "absolute","top":"0px",width:(tableWidth ? tableWidth : bodyWidth)+"px"}'
+                 :class="{'c-table-loading-shadow':loading}"></div>
         </article>
 
         <div v-if="hasFooterSlot()"
                 class='c-table-footer'
-                :style='getTableWrapperStyle'>
+                :style='getTableFooterStyle'>
                 <slot name="footer"></slot>
         </div>
     </div>
@@ -86,12 +89,16 @@
     @import "../styles/iconfont.css";
 </style>
 <style>
-.c-table-footer{
-    height:35px;
-    line-height:48px;
-    border-bottom:1px 
-    solid #e8eaec;
-}
+    .c-table-loading-shadow {
+        background: hsla(0,0%,100%,.5);
+        height:100%;
+    }
+
+    .c-table-footer {
+        height: 40px;
+        line-height: 30px;
+        border-bottom: 1px solid #e8eaec;
+    }
 
     .c-table-fiexed-right,
     .c-table-fiexed-right:after,

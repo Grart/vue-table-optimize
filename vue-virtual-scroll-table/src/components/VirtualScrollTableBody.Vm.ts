@@ -30,7 +30,6 @@ class VmWatch
 		{
 			let _$this = this;
 			_$this.renderData.splice(0, _$this.renderData.length);
-			_$this.scrollSynclData.clicked_index = _$this.scrollSynclData.hover_index = -1;
 			_$this.virtualData = _.cloneDeep(val);
 			_$this.refreshRenderData();
 			const _virtualScrollBody = _$this.$refs.virtualScrollBody as HTMLElement;
@@ -51,6 +50,8 @@ class VmWatch
 					}
 				);
 			}
+
+			console.log('handler VirtualScrollTableBody data');
 		},
 		immediate: true,
 		deep: true,
@@ -84,7 +85,6 @@ class VmComputed
 		this: VmThis
 		)
 	{
-		console.log(this.unFixedWidth, this.fixedLeftWidth, this.fixedRightWidth);
 		return {
 			'height': `${this.viewportHeight}px`,
 			'width': `${this.viewportWidth}px`,
@@ -105,9 +105,9 @@ class VmComputed
 		return {
 			'margin-left': `${this.fixedLeftWidth}px`,//左右固定的那些列是不显示的
 			'margin-right': `${this.fixedRightWidth}px`,
-			height: `${this.data.length * this.itemHeight}px`,
-			width: `${this.unFixedWidth}px`,//表体宽度
-			position: 'relative',
+			'height': `${this.data.length * this.itemHeight}px`,
+			'width': `${this.unFixedWidth}px`,//表体宽度
+			'position': 'relative',
 			//"border-bottom": this.renderData.length > 0 ? "1px solid #dddddd" : ""
 		};
 	};
@@ -123,9 +123,6 @@ class VmMethods
 		let _$this = this;
 		let _index = record.__dataIndex;
 		_$this.scrollSynclData.clicked_index = _index;
-		"debug code";
-		console.log('click', _index, JSON.stringify(record));
-		"end debug code";
 		_$this.tableOwner.$emit('on-row-click', JSON.parse(JSON.stringify(record)), _index);
 	};
 	handleRowDblClick = function (

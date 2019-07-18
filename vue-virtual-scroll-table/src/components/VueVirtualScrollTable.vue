@@ -13,6 +13,7 @@
                       :header-class='headerClass'
                       :multi-selection="multiSelection"
                       :init-row-selection="initRowSelection"
+                      :loading="loading"
                       @on-selection-change="selectionChange">
                       
    
@@ -43,6 +44,7 @@
         props: {
             /*多选模式下用于初始化勾选状态*/
             initRowSelection: Function,
+            loading: Boolean,
             columns: {
                 type: Array,
                 default()
@@ -156,8 +158,17 @@
             },
         },
         methods: {
+            clickCurrentRow: function (val)
+            {
+                let _$this = this;
+                _$this.$nextTick(
+                    () =>
+                    {
+                        this.$refs.RefTable.clickCurrentRow(val);
+                    }
+                    );
+            },
             hasFooterSlot:function(){
-                console.log(this.$slots);
                 return this.$slots.footer !== undefined;
             },
             getSelectionData: function ()
