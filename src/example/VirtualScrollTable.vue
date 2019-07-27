@@ -47,7 +47,6 @@
         displayColor,
         displayDelayContent,
     } from './util/renderUtil';
-import { type } from 'os';
 
     const DESC = 'desc';
     const ASC = 'asc';

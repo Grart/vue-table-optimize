@@ -6,22 +6,28 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
 
+const __dirnameOfAssets = "assets";
 
-//const LessVariablesPlugin = require('./less-variables-plugin');
-
-
-//const fs = require('fs');
-//const getLessVariables = require('./get-less-variables');
-//const _lessVars = getLessVariables('./src/theme.less');
-
-//const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
-//const OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin');
-
-const __dirnameOfAssets = "ATPiaoApp";
-let argv = require('yargs')
-	.default({ route: 'DefineRoute' })
-	.argv;
-let _routerName = argv.route;
+const _babelOptions = {
+	"presets": [
+		[
+			"@babel/preset-env",
+			{
+				"targets": {
+					"chrome": "58",
+					"ie": "11"
+				},
+				//"modules": false,//默认commonjs
+				"useBuiltIns": "usage",
+			}
+		],
+		"@vue/babel-preset-jsx"
+	],
+	"plugins": [
+		"@babel/transform-runtime",
+		'@babel/plugin-transform-modules-commonjs'
+	]
+};
 const _webpackConfig ={
 	mode: 'development',
 	//src为程序运行起始路径,这个影响 entry 和 module 对应加载项的相对路径
@@ -42,7 +48,7 @@ const _webpackConfig ={
 	},
 	output: {
 		filename: '[name].[hash].js',
-		path: path.resolve(__dirname, 'dist', _routerName),
+		path: path.resolve(__dirname, 'dist'),
 		//publicPath: "WebApp"//网站起始路径
 	},
 	devtool: 'inline-source-map',
@@ -128,23 +134,12 @@ const _webpackConfig ={
 			},
 
 			{
-				test: /\.(ts|js)$/,
-				loader: 'ts-loader',
-				exclude: [/node_modules/],
-				options: {
-					appendTsSuffixTo: [/\.vue$/],
-					//配置 loader 跳过类型检查，设置 happyPackMode: true / transpileOnly: true
-					transpileOnly: true
-				}
-				//options: { appendTsSuffixTo: [/TS\.vue$/] }
-			},
-
-			{
-				test: /\.tsx$/,
+				test: /\.(ts|tsx)$/,
 				//loader: 'babel-loader!ts-loader',
 				use: [
 					{
-						loader: 'babel-loader'
+						loader: 'babel-loader',
+						options: _babelOptions,
 					},
 					{
 						loader: 'ts-loader',
@@ -155,6 +150,16 @@ const _webpackConfig ={
 					}
 				],
 				exclude: /node_modules/
+			},
+
+			{
+				test: /\.(js|jsx)$/,
+				loader: 'babel-loader',
+				options: _babelOptions,
+				include: [
+					path.resolve(__dirname, 'node_modules', 'iview'),
+					path.resolve(__dirname, 'src')
+				]
 			},
 
 			{
