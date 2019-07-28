@@ -496,6 +496,16 @@ export default
 		let _prvInputText = "", _inputHasChange = false;
 		let _vNodeOfTBody = null, _vNodeOfRel = null, _vNodeOfPopper = null;
 		let _searcher = SearchCtor();
+		let _cmpInstance = new InnerVueCls(
+			{
+				propsData: {
+					data: _$this.data,
+					columns: _$this.columns,
+					pageCount: 20
+				}
+			});
+		_cmpInstance.$mount();
+		_GlobalElement.append(_cmpInstance.$el);
 		return (
 			<input
 				{...{
@@ -530,6 +540,7 @@ export default
 			console.log(_value);
 			_inputHasChange = true;
 			_$this.InputText = _value;
+			//_cmpInstance._data.DataIndexArray =
 			_$this.DataIndexArray = GenerDataIndexArray(_value);
 		};
 

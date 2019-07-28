@@ -16,7 +16,7 @@
 
         <simp-table :data="data"
                     :columns="columns"
-                    :keyField="'_id'">
+                    :keyField="keyField">
         </simp-table>
     </div>
 </template>
@@ -270,7 +270,8 @@
         data() {
             return {
                 data: result,
-                columns:_colAry
+                columns: _colAry,
+                keyField: '_id'
             };
         },
         methods: {
