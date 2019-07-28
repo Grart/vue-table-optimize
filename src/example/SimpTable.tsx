@@ -1,8 +1,8 @@
-import Vue, { VNode } from "vue";
+ï»¿import Vue, { VNode } from "vue";
 
 
 const _GlobalElement = document.createElement('div');
-document.body.append(_GlobalElement);
+document.body.appendChild(_GlobalElement);
 
 class VmData
 {
@@ -14,10 +14,10 @@ class VmData
 class VmProps
 {
 	value = Object as any as string;
-	data = Array as any as any[];//´«ÈëÊı¾İ£¬Êı×éÀàĞÍ
-	keyField = String as any as string;////Êı¾İÎ¨Ò»±êÖ¾×Ö¶Î
-	valueField = String as any as string;////ÒªÏÔÊ¾µÄ×Ö¶Î
-	columns = Array as any as any[];////ÏÂÀ­±í¸ñÒªÏÔÊ¾µÄÁĞ{title:string,key:string}
+	data = Array as any as any[];//ä¼ å…¥æ•°æ®ï¼Œæ•°ç»„ç±»å‹
+	keyField = String as any as string;////æ•°æ®å”¯ä¸€æ ‡å¿—å­—æ®µ
+	valueField = String as any as string;////è¦æ˜¾ç¤ºçš„å­—æ®µ
+	columns = Array as any as any[];////ä¸‹æ‹‰è¡¨æ ¼è¦æ˜¾ç¤ºçš„åˆ—{title:string,key:string}
 	filterMethod: (val: string, dObjh: any) => boolean = null;
 	pageCount = Number as any as number;
 }
@@ -29,23 +29,23 @@ class VmWatch
 	//constructor()
 	//{
 	//	let $this = this;
-	//	let _VmThis: Vue & VmData & VmProps;
+	//	let _$this: Vue & VmData & VmProps;
 	//	$this.SetVmThis = function (vmThis)
 	//	{
-	//		_VmThis = vmThis;
+	//		_$this = vmThis;
 	//		return $this;
 	//	};
 	//	$this.value = (val) =>
 	//	{
-	//		_VmThis.InputText = val;
+	//		_$this.InputText = val;
 	//	};
 	//	$this.data = (val) =>
 	//	{
-	//		_VmThis.data = val;
+	//		_$this.data = val;
 	//	};
 	//	$this.keyField = (val) =>
 	//	{
-	//		_VmThis.keyField = val;
+	//		_$this.keyField = val;
 	//	};
 	//}
 	SetVmThis: (vm) => VmWatch;
@@ -212,7 +212,7 @@ function VueComponentRender(
 				<td
 					{...{
 						staticClass: 'ivu-table-column-center',
-						//cssÑùÊ½´«µİ£¬ÓÉÓÚÔÚ±í¸ñÖĞ»á¼Ì³Ğµ½Ñ¡ÖĞĞĞµÄÑùÊ½£¬ËùÒÔ¸Ä³ÉstyelÉèÖÃÑùÊ½
+						//cssæ ·å¼ä¼ é€’ï¼Œç”±äºåœ¨è¡¨æ ¼ä¸­ä¼šç»§æ‰¿åˆ°é€‰ä¸­è¡Œçš„æ ·å¼ï¼Œæ‰€ä»¥æ”¹æˆstyelè®¾ç½®æ ·å¼
 						style: {
 							'height': `${_TableRowHeight}px`,
 							'background-color': _$this.FocusIndex == index ? '#ebf7ff' : '#fff',
@@ -236,9 +236,9 @@ function SearchCtor()
 	let _dIndexAry: Array<number>;
 	let _index = 0, _iCnt = 0;
 	let _innerSearcher = ContinueSearchCtor();
-	return { StopLooper, Search, IsSearching };//·µ»ØÀà¶ÔÏñ
+	return { StopLooper, Search, IsSearching };//è¿”å›ç±»å¯¹åƒ
 
-	//  ÅĞ¶ÏÊÇ·ñÕıÔÚ²éÑ¯
+	//  åˆ¤æ–­æ˜¯å¦æ­£åœ¨æŸ¥è¯¢
 	function IsSearching()
 	{
 		return _isSearching || _innerSearcher.IsSearching();
@@ -284,7 +284,7 @@ function SearchCtor()
 			);
 		}
 		_isSearching = true;
-		_dIndexAry = [];//ĞÂ²éÑ¯Ê±Éú³ÉĞÂÊı×é
+		_dIndexAry = [];//æ–°æŸ¥è¯¢æ—¶ç”Ÿæˆæ–°æ•°ç»„
 		_index = 0, _iCnt = data.length;
 
 		_loopHandler = setTimeout(
@@ -339,13 +339,13 @@ function SearchCtor()
 	}
 
 
-	/////************ÄÚ²¿Àà
+	/////************å†…éƒ¨ç±»
 	function ContinueSearchCtor()
 	{
 		let _loopHandler = null, _isSearching = false;
 		let _dIndexAry4Loop = null;
 		let _index = 0, _iCnt = 0;
-		return { StopLooper, Search, IsSearching };//·µ»ØÀà¶ÔÏñ
+		return { StopLooper, Search, IsSearching };//è¿”å›ç±»å¯¹åƒ
 
 		function IsSearching()
 		{
@@ -374,11 +374,11 @@ function SearchCtor()
 		{
 			StopLooper();
 			_isSearching = true;
-			//Ö®Ç°Î´À´²éÑ¯ÍêµÄÔªËØ
+			//ä¹‹å‰æœªæ¥æŸ¥è¯¢å®Œçš„å…ƒç´ 
 			let _dIndexAryOdd = _dIndexAry4Loop ?
-				_dIndexAry4Loop.slice(_index) //·µ»ØÊı×éÖĞ >=_index µÄÔªËØ
+				_dIndexAry4Loop.slice(_index) //è¿”å›æ•°ç»„ä¸­ >=_index çš„å…ƒç´ 
 				: [];
-			//b=a.splice(0) => a£¨Çå¿Õ£©½«Êı×éÔªËØ->ÒÆµ½->b
+			//b=a.splice(0) => aï¼ˆæ¸…ç©ºï¼‰å°†æ•°ç»„å…ƒç´ ->ç§»åˆ°->b
 			_dIndexAry4Loop = dIndexAry.splice(0).concat(_dIndexAryOdd);
 
 			_index = 0, _iCnt = _dIndexAry4Loop.length;
@@ -435,7 +435,7 @@ function SearchCtor()
 	}
 }
 
-export default Vue.extend(
+export const InnerVueCls = Vue.extend(
 	{
 		render: function (h, params)
 		{
@@ -450,7 +450,7 @@ export default Vue.extend(
 		{
 			return new VmData();
 		},
-		//Ê¹ÓÃjsx computedºÍmethods¿ÉÒÔÒ»ÆğĞ´ÔÚ±Õ°üÀï
+		//ä½¿ç”¨jsx computedå’Œmethodså¯ä»¥ä¸€èµ·å†™åœ¨é—­åŒ…é‡Œ
 		//computed: VmProxyFactory(VmComputed),
 		watch: new VmWatch(),
 		mounted: function (
@@ -483,3 +483,255 @@ export default Vue.extend(
 		methods: {}
 	}
 )
+
+export default 
+{
+	render: function (
+		this,
+		h,
+		params
+	)
+	{
+		let _$this = this;
+		let _prvInputText = "", _inputHasChange = false;
+		let _vNodeOfTBody = null, _vNodeOfRel = null, _vNodeOfPopper = null;
+		let _searcher = SearchCtor();
+		return (
+			<input
+				{...{
+					ref: "InputRef",
+					attrs: {
+						'icon': "arrow-down-b",
+						'value': _$this.InputText
+					},
+					on: {
+						'input': HandlerInput,
+						'click': HandlerInputClick,
+						'blur': HandlerBlur,
+						'keydown': HandlerInputKeydown
+					},
+					nativeOn: {
+					}
+				}}>
+			</input>
+		);
+
+		function PoperCanVisible()
+		{
+			return _searcher.IsSearching() || _$this.DataIndexArray.length > 0;
+		}
+
+		function HandlerInput(
+			event//InputEventÂ 
+		)
+		{
+			let _value = event.target.value;
+			console.log(event);
+			console.log(_value);
+			_inputHasChange = true;
+			_$this.InputText = _value;
+			_$this.DataIndexArray = GenerDataIndexArray(_value);
+		};
+
+		function HandlerInputClick(
+			event
+		)
+		{
+			console.log(event);
+			_$this.DataIndexArray = GenerDataIndexArray(_$this.InputText);
+			let _elementInput: any = _$this.$refs.InputRef;
+			_elementInput.focus();
+		}
+
+		function HandlerBlur(
+			event//FocusEventÂ 
+		)
+		{
+			console.log(event);
+			SetInputText();
+			_searcher.StopLooper();
+			_$this.FocusIndex = -1;
+			_$this.DataIndexArray = [];
+		}
+
+		function HandlerInputKeydown(
+			event: KeyboardEvent
+		)
+		{
+			console.log(event);
+			if (40 == event.keyCode)//ä¸‹
+			{
+				if (!PoperCanVisible())
+				{
+					_$this.DataIndexArray = GenerDataIndexArray(_$this.InputText);
+				}
+				if ((_$this.FocusIndex + 1) < _$this.DataIndexArray.length)
+				{
+					_$this.FocusIndex++;
+				}
+				"debug code"
+				console.log(_$this.FocusIndex);
+				"end debug code"
+				//UpdatePoperScroll();
+				return StopEvent(event);
+			}
+			if (38 == event.keyCode)//ä¸Š
+			{
+				if (!PoperCanVisible())
+				{
+					_$this.DataIndexArray = GenerDataIndexArray(_$this.InputText);
+				}
+				if (_$this.FocusIndex > 0)
+				{
+					_$this.FocusIndex--;
+				}
+				else
+				{
+					_$this.FocusIndex = 0;
+				}
+				//UpdatePoperScroll();
+				return StopEvent(event);
+			}
+			if (13 == event.keyCode//å›è½¦
+				&& 0 != _$this.DataIndexArray.length
+			)
+			{
+				SetInputText();
+				return StopEvent(event);
+			}
+			return true;
+		};
+
+
+		function GenerDataIndexArray(
+			txt: string
+		)
+		{
+			let _dIndexAry = [];
+			//continueSearch ?: boolean
+			if (!txt
+				|| (txt = txt.trim().toUpperCase()).length == 0
+			)
+			{
+				_$this.FocusIndex = - 1;
+				return [];
+			}
+			if (_prvInputText === txt && PoperCanVisible())
+			{
+				return _dIndexAry;
+			}
+
+			_searcher.StopLooper();
+
+			let _filter = (dObj) =>
+			{
+				let result = true;
+				if (_$this.filterMethod)
+				{
+					result = _$this.filterMethod(txt, dObj);
+				}
+				else
+				{
+					result = dObj[_$this.keyField].indexOf(txt) >= 0;
+				}
+				return result;
+			};
+			const _data = _$this.data;
+
+			let _continueSearch = _prvInputText && txt.startsWith(_prvInputText);
+			_prvInputText = txt;
+
+			_dIndexAry = _searcher.Search(_data, _filter, _continueSearch);
+			if (_dIndexAry.length == 0)
+			{
+				_$this.FocusIndex = - 1;
+			}
+			return _dIndexAry;
+		};
+
+
+		function SetInputText()
+		{
+			if (!_inputHasChange)
+			{
+				return;
+			}
+			let _dObj = null;
+			if (_$this.FocusIndex >= 0)
+			{
+				let _index = _$this.DataIndexArray[_$this.FocusIndex];
+				_dObj = _$this.data[_index];
+				_$this.InputText = _dObj[_$this.keyField];
+			}
+			else
+			{
+				_$this.InputText = "";
+			}
+
+			_$this.$emit('input', _$this.InputText, _dObj);
+			_$this.FocusIndex = - 1;
+			_$this.DataIndexArray = [];
+			let _elementInput: any = _$this.$refs.InputRef;
+			_elementInput.focus();
+			_inputHasChange = false;
+		};
+	},
+	props: new VmProps(),
+	data: function ()
+	{
+		return new VmData();
+	},
+	//ä½¿ç”¨jsx computedå’Œmethodså¯ä»¥ä¸€èµ·å†™åœ¨é—­åŒ…é‡Œ
+	//computed: VmProxyFactory(VmComputed),
+	watch: new VmWatch(),
+	mounted: function (
+		this: VmType
+	)
+	{
+		for (var _i = 0; _i < this.data.length; _i++)
+		{
+			this.DataIndexArray.push(_i);
+		}
+	},
+	destroyed: function ()
+	{
+		//hook: {
+		//	'create': function (vNode0, vNode1)
+		//	{
+		//		_vNodeOfPopper = vNode1;
+		//		UpPopper();
+		//	},
+		//	'destroy': function (vNode0)
+		//	{
+		//		if (_Popper)
+		//		{
+		//			_Popper.destroy();
+		//			_Popper = null;
+		//		}
+		//	}
+		//}
+	},
+	methods: {}
+};
+
+function StopEvent(event: Event)
+{
+	if (event.stopPropagation)
+	{
+		event.stopPropagation();
+	}
+	else
+	{
+		event.cancelBubble = true;
+	}
+
+	if (event.preventDefault)
+	{
+		event.preventDefault();
+	}
+	else
+	{
+		event.returnValue = false;
+	}
+	return false;
+}

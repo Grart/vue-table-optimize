@@ -13,13 +13,18 @@
         <button @click="onCreate">create</button>
 
         <button @click="onDestroy">destroy</button>
+
+        <simp-table :data="data"
+                    :columns="columns"
+                    :keyField="'_id'">
+        </simp-table>
     </div>
 </template>
 
 <script lang="ts">
     import Vue from 'vue'
     import result from './data/schedule';
-    import SimpTable from './SimpTable';
+    import SimpTable, { InnerVueCls } from './SimpTable';
     const _colAry = [
         {
             title: 'Status',
@@ -261,9 +266,11 @@
 
     export default {
         name: 'VirtualScrollTable',
-        components: { cmp1, cmp2 },
+        components: { cmp1, cmp2, SimpTable },
         data() {
             return {
+                data: result,
+                columns:_colAry
             };
         },
         methods: {
@@ -273,7 +280,7 @@
                     document.body.append(_el);
                 }
                 if (null == _cmpInstance) {
-                    _cmpInstance = new SimpTable(
+                    _cmpInstance = new InnerVueCls(
                         {
                             propsData: {
                                 data: result,
