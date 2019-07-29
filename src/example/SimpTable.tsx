@@ -437,22 +437,20 @@ function SearchCtor()
 
 export const InnerVueCls = Vue.extend(
 	{
-		render: function (h, params)
-		{
+		render: function (h, params) {
 			return VueComponentRender(
 				this,
 				h,
 				params
 			);
-		} ,
+		},
 		props: new VmProps(),
-		data: function ()
-		{
+		data: function () {
 			return new VmData();
 		},
 		//使用jsx computed和methods可以一起写在闭包里
 		//computed: VmProxyFactory(VmComputed),
-		watch: new VmWatch(),
+		watch: {},
 		mounted: function (
 			this: VmType
 		)
@@ -483,6 +481,7 @@ export const InnerVueCls = Vue.extend(
 		methods: {}
 	}
 )
+console.log(InnerVueCls);
 
 export default 
 {
@@ -540,7 +539,7 @@ export default
 			console.log(_value);
 			_inputHasChange = true;
 			_$this.InputText = _value;
-			//_cmpInstance._data.DataIndexArray =
+			_cmpInstance._data.DataIndexArray =
 			_$this.DataIndexArray = GenerDataIndexArray(_value);
 		};
 
@@ -706,6 +705,7 @@ export default
 	},
 	destroyed: function ()
 	{
+		console.log('top destroyed');
 		//hook: {
 		//	'create': function (vNode0, vNode1)
 		//	{

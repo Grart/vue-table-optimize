@@ -8,8 +8,8 @@
         </div>
         <!--<cmp1>
         </cmp1>-->
-        <cmp2>
-        </cmp2>
+        <!--<cmp2>
+        </cmp2>-->
         <button @click="onCreate">create</button>
 
         <button @click="onDestroy">destroy</button>
@@ -173,7 +173,7 @@
             },
         },
     ];
-
+    let _cmp1_id = 1;
     const cmp1 = {
         data() {
             return {
@@ -185,12 +185,14 @@
         },
         render: function (h, params) {
             let _$this = this;
-            console.log('render cmp1', _$this);
+            let _d = _cmp1_id++;
+            console.log(`render cmp1 [${_$this.name}]`, _$this);
             return h(
                 "div",
                 {
                     on: {
                         click: function (e) {
+                            console.log(_d);
                             _$this.val++;
                         }
                     }
@@ -211,7 +213,7 @@
         },
         render: function (h, params) {
             let _$this = this;
-            console.log('render cmp2');
+            console.log(`render cmp2 [${_$this.name}]`, _$this);
             return h(
                 "div",
                 {
@@ -324,5 +326,19 @@
         color: #495060;
         font-size: 14px;
         font-weight: bold;
+    }
+
+    .ivu-poptip-popper{
+        width:500px;
+        height:400px;
+        overflow:hidden;
+        font-size:12px;
+    }
+
+    .ivu-poptip-popper td,
+    .ivu-poptip-popper th{
+        border-width:0.3px;
+        border-style:solid;
+        padding:5px;
     }
 </style>
