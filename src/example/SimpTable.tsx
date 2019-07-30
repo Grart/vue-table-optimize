@@ -1,4 +1,8 @@
 ﻿import Vue, { VNode } from "vue";
+import Popper from 'popper.js/dist/umd/popper.js';
+
+console.log(Popper);
+
 
 
 const _GlobalElement = document.createElement('div');
@@ -9,6 +13,9 @@ class VmData
 	InputText: string;
 	DataIndexArray: Array<number> = [];
 	FocusIndex: number = -1;
+	ComponentInstance: any = null;
+	PopperInstance: any = null;
+	Searcher: any = SearchCtor();
 }
 
 class VmProps
@@ -64,18 +71,19 @@ function VueComponentRender(
 ): VNode
 {
 	let _$this = $this;
-	let _vNodeOfTBody = null, _vNodeOfRel = null, _vNodeOfPopper = null;
-	//let _searcher = SearchCtor();
-	_$this.InputText = _$this.value;
+	let _searcher = _$this.Searcher;
+	let _vNodeOfTBody = null;
 
-
-	return JsxProper(h, true) as any as VNode;
+	return JsxProper(
+		h,
+		_searcher.IsSearching() || _$this.DataIndexArray.length > 0
+	) as any as VNode;
 
 	function JsxProper(h, visible)
 	{
 		if (!visible)
 		{
-			return [];
+			return (<div></div>);
 		}
 		return (
 			<div
@@ -228,6 +236,27 @@ function VueComponentRender(
 		return _ret;
 	}
 
+
+	function UpdatePoperScroll() {
+		if (_vNodeOfTBody) {
+			let _elm = _vNodeOfTBody.elm as HTMLElement;
+			if (_elm) {
+				_$this.$nextTick(
+					() => {
+						let _sTopOld = _elm.scrollTop;
+						let _sTopCurMin = _TableRowHeight * (_$this.FocusIndex - (_$this.pageCount - 1));
+						let _sTopCurMax = _TableRowHeight * (_$this.FocusIndex);
+						if (_sTopOld < _sTopCurMin) {
+							_elm.scrollTop = _sTopCurMin;
+						}
+						else if (_sTopOld > _sTopCurMax) {
+							_elm.scrollTop = _sTopCurMax;
+						}
+					}
+				);
+			}
+		}
+	}
 }
 
 function SearchCtor()
@@ -300,10 +329,6 @@ function SearchCtor()
 
 		function doInnerLoop()
 		{
-			"debug code";
-			console.log('LookUpEdit-SearchCtor-Search-doInnerLoop');
-			console.log(`Search _index=${_index} _iCnt = ${_iCnt}`);
-			"end debug code";
 			let _loopCnt = 0;
 			let _indexAry = [];
 			for (; _index < _iCnt; _index++)
@@ -331,6 +356,9 @@ function SearchCtor()
 			{
 				_dIndexAry.push.apply(_dIndexAry, _indexAry);
 			}
+			"debug code";
+			console.log(`Search _index=${_index} _result = ${_dIndexAry.length}`);
+			"end debug code";
 			if (_index == _iCnt)
 			{
 				_isSearching = false;
@@ -455,13 +483,16 @@ export const InnerVueCls = Vue.extend(
 			this: VmType
 		)
 		{
-			for (var _i = 0; _i < this.data.length; _i++)
-			{
-				this.DataIndexArray.push(_i);
-			}
 		},
 		destroyed: function ()
 		{
+			let _$this = this;
+			console.log('destroyed InnerVueCls');
+			let _searcher = _$this.Searcher;
+			if (_searcher) {
+				_searcher.StopLooper();
+				_$this.Searcher = null;
+			}
 			//hook: {
 			//	'create': function (vNode0, vNode1)
 			//	{
@@ -492,19 +523,13 @@ export default
 	)
 	{
 		let _$this = this;
+		let _componentInstance = _$this.ComponentInstance;
 		let _prvInputText = "", _inputHasChange = false;
-		let _vNodeOfTBody = null, _vNodeOfRel = null, _vNodeOfPopper = null;
-		let _searcher = SearchCtor();
-		let _cmpInstance = new InnerVueCls(
-			{
-				propsData: {
-					data: _$this.data,
-					columns: _$this.columns,
-					pageCount: 20
-				}
-			});
-		_cmpInstance.$mount();
-		_GlobalElement.append(_cmpInstance.$el);
+		let _searcher = null == _componentInstance ? null : _componentInstance.Searcher;
+		if (_componentInstance) {
+			_componentInstance.DataIndexArray = _$this.DataIndexArray;
+		}
+	
 		return (
 			<input
 				{...{
@@ -539,7 +564,6 @@ export default
 			console.log(_value);
 			_inputHasChange = true;
 			_$this.InputText = _value;
-			_cmpInstance._data.DataIndexArray =
 			_$this.DataIndexArray = GenerDataIndexArray(_value);
 		};
 
@@ -624,6 +648,7 @@ export default
 			)
 			{
 				_$this.FocusIndex = - 1;
+				_searcher.StopLooper();
 				return [];
 			}
 			if (_prvInputText === txt && PoperCanVisible())
@@ -698,14 +723,73 @@ export default
 		this: VmType
 	)
 	{
-		for (var _i = 0; _i < this.data.length; _i++)
-		{
-			this.DataIndexArray.push(_i);
+		let _$this = this;
+		if (null == _$this.ComponentInstance) {
+			let _componentInstance = new InnerVueCls(
+				{
+					propsData: {
+						data: _$this.data,
+						columns: _$this.columns,
+						pageCount: 20
+					}
+				});
+			_componentInstance.$mount();
+			_GlobalElement.appendChild(_componentInstance.$el);
+			_$this.ComponentInstance = _componentInstance;
+			let _popper = _$this.PopperInstance;
+			if (null == _popper) {
+				_popper = new Popper(
+					_$this.$el,//rel
+					_componentInstance.$el,
+					{
+						placement: "bottom-start",
+						modifiers: {
+							flip: {
+								behavior: ['left', 'bottom', 'top']
+							},
+							computeStyle: {
+								gpuAcceleration: false
+							},
+							preventOverflow: {
+								boundariesElement: 'window'
+							}
+						},
+						onCreate: () => {
+							_$this.$nextTick(() => { _popper && _popper.update(); });
+						},
+						onUpdate: () => {
+						}
+					});
+				_$this.PopperInstance = _popper;
+			}
+			else {
+				_popper.reference = _$this.$el;
+				_popper.scheduleUpdate();
+				_popper.update();
+			}
+
 		}
 	},
 	destroyed: function ()
 	{
-		console.log('top destroyed');
+		let _$this = this;
+		console.log('top destroyed d');
+		let _componentInstance = _$this.ComponentInstance;
+		if (_componentInstance) {
+			let _el = _componentInstance.$el;
+			if (_el.remove) {
+				_el.remove();
+			}
+			else if (_el.parentNode && _el.parentNode.removeChild) {
+				_el.parentNode.removeChild(_el);
+			}
+			_componentInstance.$destroy();
+		}
+		let _popper = _$this.PopperInstance;
+		if (_popper) {
+			_popper.destroy();
+			_$this.PopperInstance = null;
+		}
 		//hook: {
 		//	'create': function (vNode0, vNode1)
 		//	{

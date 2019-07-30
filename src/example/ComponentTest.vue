@@ -4,16 +4,23 @@
             <h2>GRART</h2>
         </div>
         <div>
-            <input type="checkbox" />
+            <input type="text" v-model="name" />
         </div>
-        <!--<cmp1>
-        </cmp1>-->
+        <cmp1 :name="name">
+        </cmp1>
         <!--<cmp2>
-        </cmp2>-->
+    </cmp2>-->
         <button @click="onCreate">create</button>
 
         <button @click="onDestroy">destroy</button>
 
+
+
+        <hr />
+        <br />
+        <br />
+        <br />
+        <br />
         <simp-table :data="data"
                     :columns="columns"
                     :keyField="keyField">
@@ -25,6 +32,7 @@
     import Vue from 'vue'
     import result from './data/schedule';
     import SimpTable, { InnerVueCls } from './SimpTable';
+    const _Dict = {};
     const _colAry = [
         {
             title: 'Status',
@@ -185,6 +193,9 @@
         },
         render: function (h, params) {
             let _$this = this;
+            _Dict[_$this] = 1;
+
+            console.log(_Dict);
             let _d = _cmp1_id++;
             console.log(`render cmp1 [${_$this.name}]`, _$this);
             return h(
@@ -271,6 +282,7 @@
         components: { cmp1, cmp2, SimpTable },
         data() {
             return {
+                name:'grart',
                 data: result,
                 columns: _colAry,
                 keyField: '_id'
