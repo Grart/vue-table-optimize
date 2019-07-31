@@ -31,7 +31,7 @@
 <script lang="ts">
     import Vue from 'vue'
     import result from './data/schedule';
-    import SimpTable, { InnerVueCls } from './SimpTable';
+    import SimpTable from './SimpTable';
     const _Dict = {};
     const _colAry = [
         {

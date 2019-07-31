@@ -37,58 +37,57 @@ function VueComponentRender(
 	) as any as VNode;
 
 	function JsxProper(h, visible) {
-		if (!visible) {
-			return (<div></div>);
-		}
 		return (
-			<div
-				{...{
-					staticClass: "ivu-poptip-popper",
-					style: visible ? '' : 'display:none',
-					attrs: { slot: "content" },
-					slot: "content"
-				}
-				}
-			>
-				<table
+			<div class="ivu-poptip">
+				<div
 					{...{
-						attrs: {
-							cellspacing: "0",
-							cellpadding: "0",
-							border: "0"
-						},
-						style: {
-							'padding-left': '4px',
-						}
-					}}>
-					<thead>
-						<tr>
-							{JsxTableHead(h)}
-						</tr>
-					</thead>
-				</table>
-				<ul
-					{...{
-						staticClass: 'ivu-select-dropdown ivu-select-dropdown-list',
-						style: {
-							'margin-top': '0px',
-							'padding-left': '4px',
-							'padding-bottom': '6px',
-							'max-height': (_$this.pageCount * _TableRowHeight) + 'px'
-						},
-						hook: {
-							'create': function (vNode0, vNode1) {
-								_vNodeOfTBody = vNode1;
+						staticClass: "ivu-poptip-popper",
+						style: visible ? 'background-color:#fff;' : 'display:none',
+						attrs: { slot: "content" },
+						slot: "content"
+					}
+					}
+				>
+					<table
+						{...{
+							attrs: {
+								cellspacing: "0",
+								cellpadding: "0",
+								border: "0"
+							},
+							style: {
+								'padding-left': '4px',
+							}
+						}}>
+						<thead>
+							<tr>
+								{JsxTableHead(h)}
+							</tr>
+						</thead>
+					</table>
+					<ul
+						{...{
+							staticClass: 'ivu-select-dropdown ivu-select-dropdown-list',
+							style: {
+								'margin-top': '0px',
+								'padding-left': '4px',
+								'padding-bottom': '6px',
+								'max-height': (_$this.pageCount * _TableRowHeight) + 'px'
+							},
+							hook: {
+								'create': function (vNode0, vNode1) {
+									_vNodeOfTBody = vNode1;
+								}
 							}
 						}
-					}
-					}>
-					<table cellspacing="0" cellpadding="0" border="0">
-						<tbody class="ivu-table-tbody">
-							{JsxTableBody(h)}
-						</tbody>
-					</table>
-				</ul>
+						}>
+						<table cellspacing="0" cellpadding="0" border="0">
+							<tbody class="ivu-table-tbody">
+								{JsxTableBody(h)}
+							</tbody>
+						</table>
+					</ul>
+				</div>
 			</div>
 		);
 	}
