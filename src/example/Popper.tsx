@@ -37,6 +37,7 @@ function VueComponentRender(
 	) as any as VNode;
 
 	function JsxProper(h, visible) {
+		const _paddingLeft = '0px';
 		return (
 			<div class="ivu-poptip">
 				<div
@@ -56,7 +57,7 @@ function VueComponentRender(
 								border: "0"
 							},
 							style: {
-								'padding-left': '4px',
+								'padding-left': _paddingLeft,
 							}
 						}}>
 						<thead>
@@ -70,7 +71,7 @@ function VueComponentRender(
 							staticClass: 'ivu-select-dropdown ivu-select-dropdown-list',
 							style: {
 								'margin-top': '0px',
-								'padding-left': '4px',
+								'padding-left': _paddingLeft,
 								'padding-bottom': '6px',
 								'max-height': (_$this.pageCount * _TableRowHeight) + 'px'
 							},

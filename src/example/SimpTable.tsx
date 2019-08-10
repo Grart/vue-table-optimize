@@ -42,7 +42,8 @@ export default
 
 			let _popper = _$this.PopperInstance;
 			if (null != _popper) {
-				_popper.reference = _$this.$el;
+				let _elementInput: any = _$this.$refs.InputRef;
+				_popper.reference = _elementInput;
 				_popper.scheduleUpdate();
 				_popper.update();
 			}
